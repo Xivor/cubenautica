@@ -3,4 +3,4 @@ function loadModelFile(file) {
 	newScript.src = file; 
 	document.body.appendChild(newScript);
 }
-loadModelFile("models/pokeball-point.js")
+loadModelFile("models/untitled.js")

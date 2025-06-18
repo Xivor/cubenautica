@@ -13,6 +13,11 @@ window.onresize = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
 
+let pos = vec3(10, 0, 0);
+let rot = vec3(0, 0, 0);
+let sce = vec3(0, 0, 0);
+var amgs;
+var a2;
 window.onload = function () {
     gCanvas = document.getElementById("glcanvas");
     gl = gCanvas.getContext('webgl2');
@@ -22,11 +27,15 @@ window.onload = function () {
     window.onkeydown = callbackKeyDown;
 
     setupShaders();
+    amgs = new Object(pos, rot, sce, untitled);
+    amgs.setupShader(gl, gShader);
+    a2 = new Object(mult(-1, pos), rot, sce, untitled);
+    a2.setupShader(gl, gShader);
 
     render();
 }
 
-
+var teste = 0;
 function render() {
     let now, delta;
     now = Date.now();
@@ -34,8 +43,21 @@ function render() {
     gState.lastTimeCapture = now;
     
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    let camera = {
+        "eye": vec3(20, 20, 20),
+        "at": vec3(0, 0, 0),
+        "up": vec3(0, 0, 1)
+    };
+
+    amgs.render(gl, camera);
+    teste += 1;
+    amgs.rotation = add(amgs.rotation, vec3(0, 1, 0));
+
+    a2.render(gl, camera);
+    a2.rotation = add(a2.rotation, vec3(0, 1, 1));
     
-    // window.requestAnimationFrame(render);
+    window.requestAnimationFrame(render);
 }
 
 function setupShaders() {

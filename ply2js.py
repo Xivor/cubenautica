@@ -7,16 +7,16 @@ def createJS(ply, newName, dirPath="models"):
 	with open(ply, "r") as file:
 		content = file.read()
 
-		# Nome default do .js é o mesmo do .ply (mas sem p .ply no final obv)
+		# Nome default do .js é o mesmo do .ply (mas sem o .ply no final obv)
 		if not newName:
-			newName = ply.split(".")[0] + ".js"
+			newName = ply.split("/")[-1].split(".ply")[0] + ".js"
 
 		if not os.path.isdir(dirPath):
 			os.mkdir(dirPath)
 
 		jsFile = open(dirPath + "/" + newName, "w")
-		ply = ply.replace("-", "_") # JS não gosta de - no nome de coisas
-		jsFile.write("const " + ply.split(".")[0] + " = `")
+		newName = newName.replace("-", "_") # JS não gosta de - no nome de coisas
+		jsFile.write("const " + newName.split(".")[0] + " = `")
 		jsFile.write(content)
 		jsFile.write("`;")
 
@@ -24,7 +24,7 @@ def createJS(ply, newName, dirPath="models"):
 		file.close()
 
 # Cria/atualiza o arquivo loadModelFiles.js, usado no html para conseguir incluir os arquivos criados em createJS 
-def refreshLoadFile(loadFile="loadModelFiles.js", dirPath="models"):
+def refreshLoadFile(loadFile="src/loadModelFiles.js", dirPath="models"):
 	file = open(loadFile, "w")
 	file.write("function loadModelFile(file) { \n\
 	let newScript = document.createElement(\"script\"); \n\
