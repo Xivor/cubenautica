@@ -29,6 +29,8 @@ window.onload = function () {
     gl.canvas.width  = window.innerWidth;
     gl.canvas.height = window.innerHeight;
 
+    if (DEBUG) startFpsDisplay();
+
     window.onkeydown = callbackKeyDown;
 
     setupShaders();
@@ -49,11 +51,10 @@ function render() {
     for (let object of gObjects) {
         object.update(delta);
         object.render();
+        object.rotation = add(object.rotation, vec3(1, 2, 3));
     }
-    
-    // WIP
-    gObjects[0].rotation = add(gObjects[0].rotation, vec3(0, 1, 0));
-    gObjects[1].rotation = add(gObjects[1].rotation, vec3(0, 1, 1));   
+
+    if (DEBUG) updateFpsDisplay(delta);
 
     window.requestAnimationFrame(render);
 }
@@ -83,4 +84,40 @@ function setupShaders() {
 
 function callbackKeyDown(event) {
 
+}
+
+function startFpsDisplay() {
+    let overlay = document.createElement("div");
+    overlay.id = "overlay";
+    let fpsDisplay = document.createElement("div");
+    fpsDisplay.innerHTML = "FPS: <span id='fps'>0</span>";
+    overlay.appendChild(fpsDisplay);
+    let frametimeDisplay = document.createElement("div");
+    frametimeDisplay.innerHTML = "Frame Time: <span id='frametime'>0</span> ms";
+    overlay.appendChild(frametimeDisplay);
+    document.body.appendChild(overlay);
+    
+    gState.overlay = document.getElementById("overlay");
+    gState.overlayLastUpdate = Date.now();
+    gState.fpsAverage = 0;
+    gState.fpsCount = 0;
+    gState.frameTimeAverage = 0;
+    gState.frameTimeCount = 0;
+}
+
+function updateFpsDisplay(delta) {
+    gState.fpsCount++;
+    gState.fpsAverage += Math.round(1 / delta);
+    gState.frameTimeCount++;
+    gState.frameTimeAverage += delta;
+    if (Date.now() - gState.overlayLastUpdate > DEBUG_UPDATE_INTERVAL) {
+        gState.overlayLastUpdate = Date.now();
+    
+        gState.overlay.querySelector("#fps").innerText = Math.round(gState.fpsAverage / gState.fpsCount);
+        gState.fpsAverage = 0;
+        gState.fpsCount = 0;
+        gState.overlay.querySelector("#frametime").innerText = Math.round((gState.frameTimeAverage / gState.frameTimeCount) * 1000); 
+        gState.frameTimeAverage = 0;
+        gState.frameTimeCount = 0;
+    }
 }
