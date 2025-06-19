@@ -4,19 +4,22 @@ class Object {
 		this.rotation = rotation;
 		this.scale = scale;
 		this.model = model.split('\n');
+		this.translationVelocity = vec3(0, 0, 0);
+		this.rotationVelocity = vec3(0, 0, 0);
+		this.rotationCenter = vec3(0, 0, 0);
 		
 		this.voxelList = [];
 		let maxPoint = vec3(-Infinity, -Infinity, -Infinity);
 		let minPoint = vec3(Infinity, Infinity, Infinity);
 		
-		for(let voxelProperties of this.model) {
-			if(voxelProperties === "") continue;
+		for (let voxelProperties of this.model) {
+			if (voxelProperties === "") continue;
 			voxelProperties = voxelProperties.split(' ');
 			let position = vec3(voxelProperties[0], voxelProperties[1], voxelProperties[2]);
 
-			for(let i = 0; i < 3; i++) {
-				if(voxelProperties[i] < minPoint[i]) minPoint[i] = Number(voxelProperties[i]);
-				if(voxelProperties[i] > maxPoint[i]) maxPoint[i] = Number(voxelProperties[i]);
+			for (let i = 0; i < 3; i++) {
+				if (voxelProperties[i] < minPoint[i]) minPoint[i] = Number(voxelProperties[i]);
+				if (voxelProperties[i] > maxPoint[i]) maxPoint[i] = Number(voxelProperties[i]);
 			}
 
 			let color = vec4(voxelProperties[3]/255, voxelProperties[4]/255, voxelProperties[5]/255, 1);
@@ -94,7 +97,7 @@ class Object {
 		];
 
 		let cubeNormals = [];
-		for(let i = 0; i < cubeVertexes.length; i += 6) {
+		for (let i = 0; i < cubeVertexes.length; i += 6) {
 			let a = cubeVertexes[i];
 			let b = cubeVertexes[i + 1];
 			let c = cubeVertexes[i + 2];
@@ -123,7 +126,7 @@ class Object {
 	}
 
 	update(delta){
-
+		this.rotation = modVec3(add(this.rotation, mult(delta, this.rotationVelocity)), 360);
 	}
 
 	render(){

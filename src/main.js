@@ -15,6 +15,7 @@ var gState = {
 };
 
 var gObjects = [];
+var gAnimationController = new AnimationController();
 
 window.onresize = function() {
     gCanvas.width = window.innerWidth;
@@ -23,7 +24,7 @@ window.onresize = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
 
-window.onload = function () {
+window.onload = function() {
     gCanvas = document.getElementById("glcanvas");
     gl = gCanvas.getContext('webgl2');
     gl.canvas.width  = window.innerWidth;
@@ -36,7 +37,9 @@ window.onload = function () {
     setupShaders();
     gObjects.push(new Object(vec3(10, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
     gObjects.push(new Object(mult(-1, vec3(10, 0, 0)), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
+    gAnimationController.createAnimation(TEST_ANIMATION, gObjects[0]);
 
+    gState.lastTimeCapture = Date.now();
     render();
 }
 
@@ -48,10 +51,11 @@ function render() {
     
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    gAnimationController.update();
+
     for (let object of gObjects) {
         object.update(delta);
         object.render();
-        object.rotation = add(object.rotation, vec3(1, 2, 3));
     }
 
     if (DEBUG) updateFpsDisplay(delta);
@@ -120,4 +124,8 @@ function updateFpsDisplay(delta) {
         gState.frameTimeAverage = 0;
         gState.frameTimeCount = 0;
     }
+}
+
+function modVec3(v, m) {
+    return vec3(v[0] % m, v[1] % m, v[2] % m);
 }
