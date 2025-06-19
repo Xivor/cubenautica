@@ -1,15 +1,11 @@
 var gl;
 var gCanvas;
+var gCamera = null;
 var gShader = {};
 
-let gCamera = {
-    "position": vec3(20, 20, 20),
-    "at": vec3(0, 0, 0),
-    "up": vec3(0, 0, 1),
-    "perspective": perspective(60, 1, 0.1, 200),
-    "view": lookAt(vec3(20, 20, 20), vec3(0, 0, 0), vec3(0, 0, 1)),
+var gCtx = {
+    pointerLocked: false,
 };
-
 var gState = {
     lastTimeCapture: 0,
 };
@@ -29,8 +25,9 @@ window.onload = function () {
     gl.canvas.width  = window.innerWidth;
     gl.canvas.height = window.innerHeight;
 
-    window.onkeydown = callbackKeyDown;
-
+    setupEventListeners();
+    lockPointer();
+    setupWorld();
     setupShaders();
     gObjects.push(new Object(vec3(10, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
     gObjects.push(new Object(mult(-1, vec3(10, 0, 0)), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
@@ -38,6 +35,20 @@ window.onload = function () {
     render();
 }
 
+function setupEventListeners() {
+    gCanvas.addEventListener('click', lockPointer);
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keyup", onKeyUp);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener('pointerlockchange', pointerLockChange, false);
+    document.addEventListener('mozpointerlockchange', pointerLockChange, false);
+}
+
+function setupWorld() {
+    gCamera = new Camera();
+}
+
+var teste = 0;
 function render() {
     let now, delta;
     now = Date.now();
@@ -55,7 +66,41 @@ function render() {
     gObjects[0].rotation = add(gObjects[0].rotation, vec3(0, 1, 0));
     gObjects[1].rotation = add(gObjects[1].rotation, vec3(0, 1, 1));   
 
+    let camera = getCamera();
+
+    amgs.render(gl, camera);
+    teste += 1;
+    amgs.rotation = add(amgs.rotation, vec3(0, 1, 0));
+
+    a2.render(gl, camera);
+    a2.rotation = add(a2.rotation, vec3(0, 1, 1));
+
+    gCamera.move(delta);
+
     window.requestAnimationFrame(render);
+}
+
+function getCamera() {
+    if (gCamera == null) {
+      return {
+        "eye": vec3(20, 20, 20),
+        "at": vec3(0, 0, 0),
+        "up": vec3(0, 0, 1)
+      }
+    }
+
+    return {
+        "eye": gCamera.pos,
+        "at": gCamera.at,
+        "up": gCamera.up
+    }
+}
+
+function lockPointer() {
+    if (!gCtx.pointerLocked) {
+        gCanvas.requestPointerLock = gCanvas.requestPointerLock || gCanvas.mozRequestPointerLock;
+        gCanvas.requestPointerLock();
+    }
 }
 
 function setupShaders() {
@@ -81,6 +126,69 @@ function setupShaders() {
     gl.uniform4fv(gShader.uLightPosition, vec4(5, 5, 5, 1));
 }
 
-function callbackKeyDown(event) {
+// --------------------
+// CALLBACKS
+// --------------------
 
+function onKeyDown(event) {
+    if (!gCtx.pointerLocked) return;
+    switch(event.key.toLowerCase()) {
+        case 'w':
+            gCamera.transVel[0] = gCamera.moveSpeed;
+            break;
+        case 's':
+            gCamera.transVel[0] = -gCamera.moveSpeed;
+            break;
+        case 'a':
+            gCamera.transVel[1] = gCamera.moveSpeed;
+            break;
+        case 'd':
+            gCamera.transVel[1] = -gCamera.moveSpeed;
+            break;
+        case ' ':
+            gCamera.transVel[2] = gCamera.moveSpeed;
+            break;
+        case 'shift':
+            gCamera.transVel[2] = -gCamera.moveSpeed;
+            break;
+        case 'escape':
+            document.exitPointerLock();
+            break;
+  }
+}
+
+function onKeyUp(event) {
+    switch(event.key.toLowerCase()) {
+        case 'w':
+        case 's':
+            gCamera.transVel[0] = 0;
+            break;
+        case 'a':
+        case 'd':
+            gCamera.transVel[1] = 0;
+            break;
+        case ' ':
+        case 'shift':
+            gCamera.transVel[2] = 0;
+            break;
+    }
+}
+
+function onMouseMove(event) {
+    if (!gCtx.pointerLocked) return;
+  let deltaX = -event.movementX || event.mozMovementX || 0;
+  let deltaY = event.movementY || event.mozMovementY || 0;
+  deltaX = deltaX * gCamera.sensitivity;
+  deltaY = deltaY * gCamera.sensitivity;
+
+  gCamera.theta[1] += deltaX;
+  gCamera.theta[0] += deltaY;
+  gCamera.theta[0] = Math.max(-89, Math.min(89, gCamera.theta[0]));
+}
+
+function pointerLockChange() {
+    gCtx.pointerLocked = (
+        document.pointerLockElement === gCanvas ||
+        document.mozPointerLockElement === gCanvas
+    );
 }
