@@ -1,14 +1,4 @@
-const untitled = `ply
-format ascii 1.0
-comment : MagicaVoxel @ Ephtracy
-element vertex 218
-property float x
-property float y
-property float z
-property uchar red
-property uchar green
-property uchar blue
-end_header
+const TEST_MODEL = `
 -4 -2 0 187 0 0
 -3 -2 0 187 0 0
 0 -2 0 187 0 0

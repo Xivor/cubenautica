@@ -1,44 +1,39 @@
-class Object
-{
-	// model é uma string que contém o conteúdo do .ply (gerada pelo ply2js.py)
-	constructor(pos, rotation, scale, model)
-	{
-		this.pos = pos;
+class Object {
+	constructor(position, rotation, scale, model) {
+		this.position = position;
 		this.rotation = rotation;
 		this.scale = scale;
-		this.model = model.split("end_header\n")[1].split('\n');
-		
-		this.vao = null;
-		this.shader = {};
+		this.model = model.split('\n');
 		
 		this.voxelList = [];
-		let max = vec3(-Infinity, -Infinity, -Infinity);
-		let min = vec3(Infinity, Infinity, Infinity);
-		for(let voxel of this.model)
-		{
-			if(voxel === "") continue;
-			voxel = voxel.split(' ');
-			let pos = vec3(voxel[0], voxel[1], voxel[2]);
+		let maxPoint = vec3(-Infinity, -Infinity, -Infinity);
+		let minPoint = vec3(Infinity, Infinity, Infinity);
+		
+		for(let voxelProperties of this.model) {
+			if(voxelProperties === "") continue;
+			voxelProperties = voxelProperties.split(' ');
+			let position = vec3(voxelProperties[0], voxelProperties[1], voxelProperties[2]);
 
-			for(let i = 0; i < 3; i++)
-			{
-				if(voxel[i] < min[i]) min[i] = Number(voxel[i]);
-				if(voxel[i] > max[i]) max[i] = Number(voxel[i]);
+			for(let i = 0; i < 3; i++) {
+				if(voxelProperties[i] < minPoint[i]) minPoint[i] = Number(voxelProperties[i]);
+				if(voxelProperties[i] > maxPoint[i]) maxPoint[i] = Number(voxelProperties[i]);
 			}
 
-			let color = vec4(voxel[3]/255, voxel[4]/255, voxel[5]/255, 1);
-			voxel = {
-				"pos": pos,
-				"color": color,
-			};
+			let color = vec4(voxelProperties[3]/255, voxelProperties[4]/255, voxelProperties[5]/255, 1);
 
-			this.voxelList.push(voxel);
+			this.voxelList.push({
+				"position": position,
+				"color": color,
+			});
 		}
-		this.center = mult(.5, add(max, min));
+
+		this.center = mult(.5, add(maxPoint, minPoint));
+
+		this.setupShader();
 	}
-	setupShader(gl, shader)
-	{
-		this.shader = {...shader};
+
+	setupShader() {
+		this.shader = {...gShader};
 		this.vao = gl.createVertexArray();
 		gl.bindVertexArray(this.vao);
 
@@ -99,8 +94,7 @@ class Object
 		];
 
 		let cubeNormals = [];
-		for(let i = 0; i < cubeVertexes.length; i += 6)
-		{
+		for(let i = 0; i < cubeVertexes.length; i += 6) {
 			let a = cubeVertexes[i];
 			let b = cubeVertexes[i + 1];
 			let c = cubeVertexes[i + 2];
@@ -125,28 +119,24 @@ class Object
 		gl.vertexAttribPointer(aNormal, 3, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(aNormal);
 
-		let perspectiva = perspective(60, 1, 0.1, 200);
-		gl.uniformMatrix4fv(this.shader.uPerspective, false, flatten(perspectiva));
-
-		gl.uniform4fv(this.shader.uLightPosition, vec4(5, 5, 5, 1));
-
 		gl.bindVertexArray(null);
 	}
-	render(gl, camera)
-	{
+
+	update(delta){
+
+	}
+
+	render(){
 		gl.bindVertexArray(this.vao);
 
-		let vista = lookAt(camera.eye, camera.at, camera.up);
-		gl.uniformMatrix4fv(this.shader.uView, false, flatten(vista));
-
 		this.voxelList.forEach( voxel => {
-			let modelMatrix = translate(voxel.pos[0], voxel.pos[1], voxel.pos[2]);
+			let modelMatrix = translate(voxel.position[0], voxel.position[1], voxel.position[2]);
 			modelMatrix = mult(translate(-this.center[0], -this.center[1], -this.center[2]), modelMatrix)
-			let mTranslation = translate(this.pos[0], this.pos[1], this.pos[2]);
+			let mTranslation = translate(this.position[0], this.position[1], this.position[2]);
 			let mRotate = mult(rotateZ(this.rotation[2]), mult(rotateY(this.rotation[1]), rotateX(this.rotation[0])));
 			modelMatrix = mult(mTranslation, mult(mRotate, modelMatrix));
 
-			let mInvTrans = inverse(transpose(mult(vista, modelMatrix)));
+			let mInvTrans = inverse(transpose(mult(gCamera.view, modelMatrix)));
 			
 		    gl.uniformMatrix4fv(this.shader.uModel, false, flatten(modelMatrix));
 		    gl.uniformMatrix4fv(this.shader.uModelViewInverseTranspose, false, flatten(mInvTrans));

@@ -2,6 +2,14 @@ var gl;
 var gCanvas;
 var gShader = {};
 
+let gCamera = {
+    "position": vec3(20, 20, 20),
+    "at": vec3(0, 0, 0),
+    "up": vec3(0, 0, 1),
+    "perspective": perspective(60, 1, 0.1, 200),
+    "view": lookAt(vec3(20, 20, 20), vec3(0, 0, 0), vec3(0, 0, 1)),
+};
+
 var gState = {
     lastTimeCapture: 0,
 };
@@ -13,11 +21,8 @@ window.onresize = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
 
-let pos = vec3(10, 0, 0);
-let rot = vec3(0, 0, 0);
-let sce = vec3(0, 0, 0);
-var amgs;
-var a2;
+var gObjects = [];
+
 window.onload = function () {
     gCanvas = document.getElementById("glcanvas");
     gl = gCanvas.getContext('webgl2');
@@ -27,15 +32,12 @@ window.onload = function () {
     window.onkeydown = callbackKeyDown;
 
     setupShaders();
-    amgs = new Object(pos, rot, sce, untitled);
-    amgs.setupShader(gl, gShader);
-    a2 = new Object(mult(-1, pos), rot, sce, untitled);
-    a2.setupShader(gl, gShader);
+    gObjects.push(new Object(vec3(10, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
+    gObjects.push(new Object(mult(-1, vec3(10, 0, 0)), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
 
     render();
 }
 
-var teste = 0;
 function render() {
     let now, delta;
     now = Date.now();
@@ -44,19 +46,15 @@ function render() {
     
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    let camera = {
-        "eye": vec3(20, 20, 20),
-        "at": vec3(0, 0, 0),
-        "up": vec3(0, 0, 1)
-    };
-
-    amgs.render(gl, camera);
-    teste += 1;
-    amgs.rotation = add(amgs.rotation, vec3(0, 1, 0));
-
-    a2.render(gl, camera);
-    a2.rotation = add(a2.rotation, vec3(0, 1, 1));
+    for (let object of gObjects) {
+        object.update(delta);
+        object.render();
+    }
     
+    // WIP
+    gObjects[0].rotation = add(gObjects[0].rotation, vec3(0, 1, 0));
+    gObjects[1].rotation = add(gObjects[1].rotation, vec3(0, 1, 1));   
+
     window.requestAnimationFrame(render);
 }
 
@@ -77,6 +75,10 @@ function setupShaders() {
     gShader.uColorEspecular = gl.getUniformLocation(gShader.program, "uColorEspecular");
     gShader.uAlphaEspecular = gl.getUniformLocation(gShader.program, "uAlphaEspecular");
     gShader.uLightPosition = gl.getUniformLocation(gShader.program, "uLightPosition");
+
+    gl.uniformMatrix4fv(gShader.uView, false, flatten(gCamera.view));
+    gl.uniformMatrix4fv(gShader.uPerspective, false, flatten(gCamera.perspective));
+    gl.uniform4fv(gShader.uLightPosition, vec4(5, 5, 5, 1));
 }
 
 function callbackKeyDown(event) {
