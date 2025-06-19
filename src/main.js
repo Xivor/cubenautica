@@ -68,14 +68,11 @@ function render() {
 
     let camera = getCamera();
 
-    amgs.render(gl, camera);
-    teste += 1;
-    amgs.rotation = add(amgs.rotation, vec3(0, 1, 0));
-
-    a2.render(gl, camera);
-    a2.rotation = add(a2.rotation, vec3(0, 1, 1));
-
     gCamera.move(delta);
+
+    let view = lookAt(camera.eye, camera.at, camera.up);
+    gl.uniformMatrix4fv(gShader.uView, false, flatten(view));
+    if (gCamera != null) gCamera.view = view;
 
     window.requestAnimationFrame(render);
 }
@@ -121,7 +118,6 @@ function setupShaders() {
     gShader.uAlphaEspecular = gl.getUniformLocation(gShader.program, "uAlphaEspecular");
     gShader.uLightPosition = gl.getUniformLocation(gShader.program, "uLightPosition");
 
-    gl.uniformMatrix4fv(gShader.uView, false, flatten(gCamera.view));
     gl.uniformMatrix4fv(gShader.uPerspective, false, flatten(gCamera.perspective));
     gl.uniform4fv(gShader.uLightPosition, vec4(5, 5, 5, 1));
 }
