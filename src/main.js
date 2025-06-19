@@ -14,14 +14,14 @@ var gState = {
     lastTimeCapture: 0,
 };
 
+var gObjects = [];
+
 window.onresize = function() {
     gCanvas.width = window.innerWidth;
     gCanvas.height = window.innerHeight;
     gl.viewport(0, 0, gCanvas.width, gCanvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
-
-var gObjects = [];
 
 window.onload = function () {
     gCanvas = document.getElementById("glcanvas");
