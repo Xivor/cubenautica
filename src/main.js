@@ -63,8 +63,8 @@ function setupShaders() {
     gl.clearColor(BACKGROUND_COLOR[0], BACKGROUND_COLOR[1], BACKGROUND_COLOR[2], BACKGROUND_COLOR[3]);
     gl.enable(gl.DEPTH_TEST);
 
-    gShader.program = makeProgram(gl, gVertexShaderSrc, gFragmentShaderSrc);
-    gl.useProgram(gShader.program);    
+    gShader.program = makeProgram(gl, VERTEX_SHADER, FRAGMENT_SHADER);
+    gl.useProgram(gShader.program);
     
     gShader.uModel = gl.getUniformLocation(gShader.program, "uModel");
     gShader.uView = gl.getUniformLocation(gShader.program, "uView");
