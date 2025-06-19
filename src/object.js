@@ -125,11 +125,12 @@ class Object {
 		gl.bindVertexArray(null);
 	}
 
-	update(delta){
+	update(delta) {
 		this.rotation = modVec3(add(this.rotation, mult(delta, this.rotationVelocity)), 360);
+		this.position = add(this.position, mult(delta, this.translationVelocity));
 	}
 
-	render(){
+	render() {
 		gl.bindVertexArray(this.vao);
 
 		this.voxelList.forEach( voxel => {

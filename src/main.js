@@ -127,5 +127,5 @@ function updateFpsDisplay(delta) {
 }
 
 function modVec3(v, m) {
-    return vec3(v[0] % m, v[1] % m, v[2] % m);
+    return vec3((v[0] + m) % m, (v[1] + m) % m, (v[2] + m) % m);
 }
