@@ -1,4 +1,4 @@
-var gFragmentShaderSrc = `#version 300 es
+const FRAGMENT_SHADER = `#version 300 es
 
 precision highp float;
 

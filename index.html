@@ -7,15 +7,14 @@
     <link rel="icon" href="assets/favicon.png">
     <script src="http://www.ime.usp.br/~hitoshi/mac0420/libs/MVnew.js"></script>
     <script src="http://www.ime.usp.br/~hitoshi/mac0420/libs/macWebglUtils.js"></script>
-
-    <script src="src/camera.js"></script>
-    <script src="src/main.js"></script>
+    
+    <script src="src/animationController.js"></script>
+    <script src="src/interaction.js"></script>
+    <script src="src/animation.js"></script>
     <script src="src/constants.js"></script>
     <script src="src/object.js"></script>
-    <script src="src/interaction.js"></script>
-
-    <script src="shaders/vertex.js"></script>
-    <script src="shaders/fragment.js"></script>
+    <script src="src/camera.js"></script>  
+    <script src="src/main.js"></script>
     
     <style>
         html, body {
@@ -26,11 +25,20 @@
             display: block;
             overflow: hidden;
         }
-    </style>
+        #overlay {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-family: monospace;
+            padding: 1em;
+        }
+        </style>
 </head>
 
 <body>
-    <script src="src/loadModelFiles.js"></script>
+    <script src="src/assetLoader.js"></script>
     <canvas id="glcanvas"></canvas>
 </body>
 

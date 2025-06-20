@@ -1,4 +1,4 @@
-var gVertexShaderSrc = `#version 300 es
+const VERTEX_SHADER = `#version 300 es
 
 in  vec4 aPosition;
 in  vec3 aNormal;

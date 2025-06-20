@@ -10,6 +10,7 @@ var gState = {
 };
 
 var gObjects = [];
+var gAnimationController = new AnimationController();
 
 window.onresize = function() {
     gCanvas.width = window.innerWidth;
@@ -18,16 +19,18 @@ window.onresize = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
 
-window.onload = function () {
+window.onload = function() {
     gCanvas = document.getElementById("glcanvas");
     gl = gCanvas.getContext('webgl2');
     gl.canvas.width  = window.innerWidth;
     gl.canvas.height = window.innerHeight;
 
+    if (DEBUG) startFpsDisplay();
+
     setupEventListeners();
-    
     setupWorld();
-    
+  
+    gState.lastTimeCapture = Date.now();
     render();
 }
 
@@ -38,6 +41,8 @@ function render() {
     gState.lastTimeCapture = now;
     
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    gAnimationController.update();
     
     for (let object of gObjects) {
         object.update(delta);
@@ -45,9 +50,10 @@ function render() {
     }
     
     gCamera.update(delta);
-    
     gl.uniformMatrix4fv(gShader.uView, false, flatten(gCamera.view));
-    
+  
+    if (DEBUG) updateFpsDisplay(delta);
+  
     window.requestAnimationFrame(render);
 }
 
@@ -62,9 +68,9 @@ function setupShaders() {
     gl.viewport(0, 0, gCanvas.width, gCanvas.height);
     gl.clearColor(BACKGROUND_COLOR[0], BACKGROUND_COLOR[1], BACKGROUND_COLOR[2], BACKGROUND_COLOR[3]);
     gl.enable(gl.DEPTH_TEST);
-    
-    gShader.program = makeProgram(gl, gVertexShaderSrc, gFragmentShaderSrc);
-    gl.useProgram(gShader.program);    
+
+    gShader.program = makeProgram(gl, VERTEX_SHADER, FRAGMENT_SHADER);
+    gl.useProgram(gShader.program);
     
     gShader.uModel = gl.getUniformLocation(gShader.program, "uModel");
     gShader.uView = gl.getUniformLocation(gShader.program, "uView");
@@ -77,7 +83,9 @@ function setupShaders() {
     gShader.uLightPosition = gl.getUniformLocation(gShader.program, "uLightPosition");
     
     gl.uniformMatrix4fv(gShader.uPerspective, false, flatten(gCamera.perspective));
-    gl.uniform4fv(gShader.uLightPosition, vec4(5, 5, 5, 1));
+    gl.uniform4fv(gShader.uLightPosition, LIGHT.position);
+    gl.uniform4fv(gShader.uColorEspecular, LIGHT.especular);
+    gl.uniform1f(gShader.uAlphaEspecular, LIGHT.alpha);
 }
 
 function setupEventListeners() {
@@ -87,4 +95,44 @@ function setupEventListeners() {
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("pointerlockchange", pointerLockChange, false);
     document.addEventListener("mozpointerlockchange", pointerLockChange, false);
+}
+
+function startFpsDisplay() {
+    let overlay = document.createElement("div");
+    overlay.id = "overlay";
+    let fpsDisplay = document.createElement("div");
+    fpsDisplay.innerHTML = "FPS: <span id='fps'>0</span>";
+    overlay.appendChild(fpsDisplay);
+    let frametimeDisplay = document.createElement("div");
+    frametimeDisplay.innerHTML = "Frame Time: <span id='frametime'>0</span> ms";
+    overlay.appendChild(frametimeDisplay);
+    document.body.appendChild(overlay);
+    
+    gState.overlay = document.getElementById("overlay");
+    gState.overlayLastUpdate = Date.now();
+    gState.fpsAverage = 0;
+    gState.fpsCount = 0;
+    gState.frameTimeAverage = 0;
+    gState.frameTimeCount = 0;
+}
+
+function updateFpsDisplay(delta) {
+    gState.fpsCount++;
+    gState.fpsAverage += Math.round(1 / delta);
+    gState.frameTimeCount++;
+    gState.frameTimeAverage += delta;
+    if (Date.now() - gState.overlayLastUpdate > DEBUG_UPDATE_INTERVAL) {
+        gState.overlayLastUpdate = Date.now();
+    
+        gState.overlay.querySelector("#fps").innerText = Math.round(gState.fpsAverage / gState.fpsCount);
+        gState.fpsAverage = 0;
+        gState.fpsCount = 0;
+        gState.overlay.querySelector("#frametime").innerText = Math.round((gState.frameTimeAverage / gState.frameTimeCount) * 1000); 
+        gState.frameTimeAverage = 0;
+        gState.frameTimeCount = 0;
+    }
+}
+
+function modVec3(v, m) {
+    return vec3((v[0] + m) % m, (v[1] + m) % m, (v[2] + m) % m);
 }
