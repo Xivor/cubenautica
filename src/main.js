@@ -83,7 +83,9 @@ function setupShaders() {
 
     gl.uniformMatrix4fv(gShader.uView, false, flatten(gCamera.view));
     gl.uniformMatrix4fv(gShader.uPerspective, false, flatten(gCamera.perspective));
-    gl.uniform4fv(gShader.uLightPosition, vec4(5, 5, 5, 1));
+    gl.uniform4fv(gShader.uLightPosition, LIGHT.position);
+    gl.uniform4fv(gShader.uColorEspecular, LIGHT.especular);
+    gl.uniform1f(gShader.uAlphaEspecular, LIGHT.alpha);
 }
 
 function callbackKeyDown(event) {

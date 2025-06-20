@@ -24,6 +24,7 @@ class Animation {
                 if (length(subtract(this.object.position, this.translationTarget)) < DISTANCE_ACCURACY) {
                     this.object.translationVelocity = vec3(0, 0, 0);
                     this.object.position = this.translationTarget;
+                    this.object.offsetRotation.center = null;
                     this.translationTarget = null;
                 }
             }
@@ -32,11 +33,20 @@ class Animation {
 
         switch (step[0]) {
             case "rotate":
-                this.startRotation(this.parseAxis(step[1]), parseFloat(step[2]), parseFloat(step[3]), this.parseDuration(step[4]));
+                this.startRotation(
+                    this.parseAxis(step[1]),
+                    vec3(parseFloat(step[2]), parseFloat(step[3]), parseFloat(step[4])),
+                    parseFloat(step[5]),
+                    this.parseDuration(step[6])
+                );
                 break;
 
             case "translate":
-                this.startTranslation(this.parseAxis(step[1]), parseFloat(step[2]), this.parseDuration(step[3]));
+                this.startTranslation(
+                    this.parseAxis(step[1]),
+                    parseFloat(step[2]),
+                    this.parseDuration(step[3])
+                );
                 break;
             
             case "stop":
@@ -56,7 +66,7 @@ class Animation {
         else this.combined = false;
     }
 
-    startRotation(axis, rotationRadius, rotationAngle, duration) {
+    startRotation(axis, rotationCenter, rotationAngle, duration) {
         if (this.combined && this.rotationTarget !== null)
             this.rotationTarget = modVec3(add(this.rotationTarget, mult(rotationAngle, axis)), 360);
         else
@@ -64,6 +74,41 @@ class Animation {
 
         let rotationVelocity = mult(1000 / duration, mult(rotationAngle, axis));
         this.object.rotationVelocity = add(this.object.rotationVelocity, rotationVelocity);
+
+        if (length(rotationCenter) != 0 && length(subtract(rotationCenter, this.object.position)) > DISTANCE_ACCURACY) {
+            this.object.offsetRotation.center = rotationCenter;
+            this.object.offsetRotation.axis = axis;
+            this.object.offsetRotation.angleSpeed = rotationAngle * (1000 /duration);
+
+            if (this.translationTarget === null) this.translationTarget = vec3(0, 0, 0);
+            if (axis[0] === 1) { // X-axis
+                this.object.offsetRotation.angle = this.object.position[1] < rotationCenter[1] ? 180 : 0;
+                rotationAngle += this.object.offsetRotation.angle;
+                this.translationTarget = add(this.translationTarget,
+                    add(rotationCenter, mult(
+                        length(subtract(this.object.position, rotationCenter)), 
+                        vec3(0, Math.sin(rotationAngle * Math.PI / 180), Math.cos(rotationAngle * Math.PI / 180))
+                )));
+            }
+            else if (axis[1] === 1) { // Y-axis
+                this.object.offsetRotation.angle = this.object.position[2] < rotationCenter[2] ? 180 : 0;
+                rotationAngle += this.object.offsetRotation.angle;
+                this.translationTarget = add(this.translationTarget,
+                    add(rotationCenter, mult(
+                        length(subtract(this.object.position, rotationCenter)), 
+                        vec3(Math.cos(rotationAngle * Math.PI / 180), 0, Math.sin(rotationAngle * Math.PI / 180))
+                )));
+            }
+            else if (axis[2] === 1) { // Z-axis
+                this.object.offsetRotation.angle = this.object.position[0] < rotationCenter[0] ? 180 : 0;
+                rotationAngle += this.object.offsetRotation.angle;
+                this.translationTarget = add(this.translationTarget,
+                    add(rotationCenter, mult(
+                        length(subtract(this.object.position, rotationCenter)), 
+                        vec3(Math.cos(rotationAngle * Math.PI / 180), Math.sin(rotationAngle * Math.PI / 180), 0)
+                )));
+            }
+        }
     }
 
     startTranslation(axis, translationDistance, duration) {

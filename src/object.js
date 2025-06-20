@@ -6,7 +6,12 @@ class Object {
 		this.model = model.split('\n');
 		this.translationVelocity = vec3(0, 0, 0);
 		this.rotationVelocity = vec3(0, 0, 0);
-		this.rotationCenter = vec3(0, 0, 0);
+		this.offsetRotation = {
+			center: null,
+			axis: vec3(0, 0, 0),
+			angle: 0,
+			angleSpeed: 0,
+		}
 		
 		this.voxelList = [];
 		let maxPoint = vec3(-Infinity, -Infinity, -Infinity);
@@ -33,6 +38,52 @@ class Object {
 		this.center = mult(.5, add(maxPoint, minPoint));
 
 		this.setupShader();
+	}
+
+	update(delta) {
+		this.rotation = modVec3(add(this.rotation, mult(delta, this.rotationVelocity)), 360);
+		if (this.offsetRotation.center === null)
+			this.position = add(this.position, mult(delta, this.translationVelocity));
+		else {
+			this.offsetRotation.angle += this.offsetRotation.angleSpeed * delta;
+		    if (this.offsetRotation.axis[0] !== 0)
+				this.position = add(this.offsetRotation.center, mult(
+					length(subtract(this.position, this.offsetRotation.center)), 
+					vec3(0, Math.sin(this.offsetRotation.angle * Math.PI / 180), Math.cos(this.offsetRotation.angle * Math.PI / 180))
+				));
+			else if (this.offsetRotation.axis[1] !== 0)
+				this.position = add(this.offsetRotation.center, mult(
+					length(subtract(this.position, this.offsetRotation.center)), 
+					vec3(Math.cos(this.offsetRotation.angle * Math.PI / 180), 0, Math.sin(this.offsetRotation.angle * Math.PI / 180))
+				));
+			else if (this.offsetRotation.axis[2] !== 0)
+				this.position = add(this.offsetRotation.center, mult(
+					length(subtract(this.position, this.offsetRotation.center)), 
+					vec3(Math.cos(this.offsetRotation.angle * Math.PI / 180), Math.sin(this.offsetRotation.angle * Math.PI / 180), 0)
+				));
+		}
+	}
+
+	render() {
+		gl.bindVertexArray(this.vao);
+
+		this.voxelList.forEach( voxel => {
+			let modelMatrix = translate(voxel.position[0], voxel.position[1], voxel.position[2]);
+			modelMatrix = mult(translate(-this.center[0], -this.center[1], -this.center[2]), modelMatrix)
+			let mTranslation = translate(this.position[0], this.position[1], this.position[2]);
+			let mRotate = mult(rotateZ(this.rotation[2]), mult(rotateY(this.rotation[1]), rotateX(this.rotation[0])));
+			modelMatrix = mult(mTranslation, mult(mRotate, modelMatrix));
+
+			let mInvTrans = inverse(transpose(mult(gCamera.view, modelMatrix)));
+			
+		    gl.uniformMatrix4fv(this.shader.uModel, false, flatten(modelMatrix));
+		    gl.uniformMatrix4fv(this.shader.uModelViewInverseTranspose, false, flatten(mInvTrans));
+		    gl.uniform4fv(this.shader.uColorAmbient, mult(LIGHT.ambient, voxel.color));
+			gl.uniform4fv(this.shader.uColorDiffusion, mult(LIGHT.diffusion, voxel.color));
+    		gl.drawArrays(gl.TRIANGLES, 0, 36);
+		});
+
+		gl.bindVertexArray(null);
 	}
 
 	setupShader() {
@@ -121,35 +172,6 @@ class Object {
 		let aNormal = gl.getAttribLocation(this.shader.program, "aNormal");
 		gl.vertexAttribPointer(aNormal, 3, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(aNormal);
-
-		gl.bindVertexArray(null);
-	}
-
-	update(delta) {
-		this.rotation = modVec3(add(this.rotation, mult(delta, this.rotationVelocity)), 360);
-		this.position = add(this.position, mult(delta, this.translationVelocity));
-	}
-
-	render() {
-		gl.bindVertexArray(this.vao);
-
-		this.voxelList.forEach( voxel => {
-			let modelMatrix = translate(voxel.position[0], voxel.position[1], voxel.position[2]);
-			modelMatrix = mult(translate(-this.center[0], -this.center[1], -this.center[2]), modelMatrix)
-			let mTranslation = translate(this.position[0], this.position[1], this.position[2]);
-			let mRotate = mult(rotateZ(this.rotation[2]), mult(rotateY(this.rotation[1]), rotateX(this.rotation[0])));
-			modelMatrix = mult(mTranslation, mult(mRotate, modelMatrix));
-
-			let mInvTrans = inverse(transpose(mult(gCamera.view, modelMatrix)));
-			
-		    gl.uniformMatrix4fv(this.shader.uModel, false, flatten(modelMatrix));
-		    gl.uniformMatrix4fv(this.shader.uModelViewInverseTranspose, false, flatten(mInvTrans));
-		    gl.uniform4fv(this.shader.uColorAmbient, mult(vec4(0.47, 0.47, 0.47, 1.0), voxel.color));
-			gl.uniform4fv(this.shader.uColorDiffusion, mult(vec4(0.68, 0.68, 0.68, 1.0), voxel.color));
-			gl.uniform4fv(this.shader.uColorEspecular, vec4(0.39, 0.39, 0.39, 1.0));
-			gl.uniform1f(this.shader.uAlphaEspecular, 10.0);
-    		gl.drawArrays(gl.TRIANGLES, 0, 36);
-		});
 
 		gl.bindVertexArray(null);
 	}
