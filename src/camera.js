@@ -1,44 +1,31 @@
 class Camera {
-  constructor() {
-    this.pos = vec3(0, 50, 0);
-    this.at = vec3(0, 0, 0);
-    this.up = vec3(0, 0, 1);
-    this.fovy = 45.0;
-    this.aspect = 1.0;
-    this.near = 1;
-    this.far = 2000;
-    this.transVel = vec3(0, 0, 0);
-    this.theta = vec3(0, 0, 0);
-    this.angVel = vec3(0, 0, 0);
-    this.sensitivity = 0.05;
-    this.moveSpeed = 50;
+    constructor() {
+        this.position = vec3(0, 50, 0);
+        this.at = vec3(0, 0, 0);
+        this.up = vec3(0, 0, 1);
+        this.translationVelocity = vec3(0, 0, 0);
+        this.theta = vec3(0, 0, 0);
 
-      this.perspective = perspective(this.fovy, this.aspect, this.near, this.far);
-      this.view = lookAt(this.pos, this.at, this.up);
-  }
+        this.perspective = perspective(CAMERA_FOVY, CAMERA_ASPECT, CAMERA_NEAR, CAMERA_FAR);
+        this.view = lookAt(this.position, this.at, this.up);
+    }
 
-  move(delta) {
-    let rx = rotateX(this.theta[0]);
-    let ry = rotateY(this.theta[1]);
-    let rotation = mult(ry, rx);
+    update(delta) {
+        let rotation = mult(rotateZ(this.theta[1]), rotateX(this.theta[0]));
 
-    let forward_v4 = mult(rotation, vec4(0, -1, 0, 0));
-    let up_v4 = mult(rotation, vec4(0, 0, 1, 0));
-    let right_v4 = mult(rotation, vec4(1, 0, 0, 0));
+        let forward = mult(rotation, vec4(0, -1, 0, 0));
+        forward = vec3(forward[0], forward[1], forward[2]);
+        this.position = add(this.position, mult(this.translationVelocity[0] * delta, forward));
 
-    let forward = vec3(forward_v4[0], forward_v4[1], forward_v4[2]);
-    let up = vec3(up_v4[0], up_v4[1], up_v4[2]);
-    let right = vec3(right_v4[0], right_v4[1], right_v4[2]);
+        let right = mult(rotation, vec4(1, 0, 0, 0));
+        right = vec3(right[0], right[1], right[2]);
+        this.position = add(this.position, mult(this.translationVelocity[1] * delta, right));
 
-    let moveF = mult(this.transVel[0] * delta, forward);
-    let moveR = mult(this.transVel[1] * delta, right);
-    let moveU = mult(this.transVel[2] * delta, up);
+        this.up = mult(rotation, vec4(0, 0, 1, 0));
+        this.up = vec3(this.up[0], this.up[1], this.up[2]);
+        this.position = add(this.position, mult(this.translationVelocity[2] * delta, this.up));
 
-    this.pos = add(this.pos, moveF);
-    this.pos = add(this.pos, moveR);
-    this.pos = add(this.pos, moveU);
-
-    this.at = add(this.pos, forward);
-    this.up = up;
-  }
+        this.at = add(this.position, forward);
+        this.view = lookAt(this.position, this.at, this.up);
+    }
 }
