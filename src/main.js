@@ -19,8 +19,9 @@ window.onload = function() {
 
     if (DEBUG) startFpsDisplay();
 
-    setupEventListeners();
+    setupShaders();
     setupWorld();
+    setupEventListeners();
   
     gState.lastTimeCapture = Date.now();
     render();
@@ -51,7 +52,6 @@ function render() {
 function setupWorld() {
     gCamera = new Camera();
     gAnimationController = new AnimationController();
-    setupShaders();
     gObjects.push(new Object(vec3(10, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
     gAnimationController.createAnimation(TEST_ANIMATION, gObjects[0]);
     gObjects.push(new Object(mult(-1, vec3(10, 0, 0)), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
@@ -75,7 +75,6 @@ function setupShaders() {
     gShader.uAlphaEspecular = gl.getUniformLocation(gShader.program, "uAlphaEspecular");
     gShader.uLightPosition = gl.getUniformLocation(gShader.program, "uLightPosition");
     
-    gl.uniformMatrix4fv(gShader.uPerspective, false, flatten(gCamera.perspective));
     gl.uniform4fv(gShader.uLightPosition, LIGHT.position);
     gl.uniform4fv(gShader.uColorEspecular, LIGHT.especular);
     gl.uniform1f(gShader.uAlphaEspecular, LIGHT.alpha);
