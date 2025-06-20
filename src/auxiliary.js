@@ -1,11 +1,12 @@
 window.onresize = function() {
     gCanvas.width = window.innerWidth;
     gCanvas.height = window.innerHeight;
+    
     gl.viewport(0, 0, gCanvas.width, gCanvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gCamera.aspect = gCanvas.width / gCanvas.height;
-    gCamera.perspective = perspective(CAMERA_FOVY, gCamera.aspect, CAMERA_NEAR, CAMERA_FAR);
-    gl.uniformMatrix4fv(gShader.uPerspective, false, flatten(gCamera.perspective));
+
+    let aspect = window.innerWidth / window.innerHeight;
+    gl.uniformMatrix4fv(gShader.uPerspective, false, flatten(perspective(CAMERA_FOVY, aspect, CAMERA_NEAR, CAMERA_FAR)));
 }
 
 function startFpsDisplay() {

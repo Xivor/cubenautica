@@ -3,12 +3,12 @@ class Camera {
         this.position = vec3(0, 50, 0);
         this.at = vec3(0, 0, 0);
         this.up = vec3(0, 0, 1);
-        this.aspect = window.innerWidth / window.innerHeight;
         this.translationVelocity = vec3(0, 0, 0);
         this.theta = vec3(0, 0, 0);
 
-        this.perspective = perspective(CAMERA_FOVY, this.aspect, CAMERA_NEAR, CAMERA_FAR);
-        gl.uniformMatrix4fv(gShader.uPerspective, false, flatten(this.perspective));
+        let aspect = window.innerWidth / window.innerHeight;
+        gl.uniformMatrix4fv(gShader.uPerspective, false, flatten(perspective(CAMERA_FOVY, aspect, CAMERA_NEAR, CAMERA_FAR)));
+        
         this.view = lookAt(this.position, this.at, this.up);
     }
 
