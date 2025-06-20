@@ -13,21 +13,21 @@ class Camera {
     move() {
         this.translationVelocity[0] = 0;
         if (gState.pressedKeys.includes('w'))
-            this.translationVelocity[0] += CAMERA_VELOCITY;
+            this.translationVelocity[0] += PLAYER_SPEED;
         if (gState.pressedKeys.includes('s'))
-            this.translationVelocity[0] += -CAMERA_VELOCITY;
+            this.translationVelocity[0] += -PLAYER_SPEED;
 
         this.translationVelocity[1] = 0;
         if (gState.pressedKeys.includes('a'))
-            this.translationVelocity[1] += CAMERA_VELOCITY;
+            this.translationVelocity[1] += PLAYER_SPEED;
         if (gState.pressedKeys.includes('d'))
-            this.translationVelocity[1] += -CAMERA_VELOCITY;
+            this.translationVelocity[1] += -PLAYER_SPEED;
 
         this.translationVelocity[2] = 0;
         if (gState.pressedKeys.includes(' '))
-            this.translationVelocity[2] += CAMERA_VELOCITY;
+            this.translationVelocity[2] += PLAYER_SPEED;
         if (gState.pressedKeys.includes('shift'))
-            this.translationVelocity[2] += -CAMERA_VELOCITY;
+            this.translationVelocity[2] += -PLAYER_SPEED;
     }
 
     update(delta) {
@@ -47,5 +47,6 @@ class Camera {
 
         this.at = add(this.position, forward);
         this.view = lookAt(this.position, this.at, this.up);
+        gl.uniformMatrix4fv(gShader.uView, false, flatten(gCamera.view));
     }
 }
