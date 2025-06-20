@@ -42,9 +42,9 @@ class Object {
 
 	update(delta) {
 		this.rotation = modVec3(add(this.rotation, mult(delta, this.rotationVelocity)), 360);
-		if (this.offsetRotation.center === null)
-			this.position = add(this.position, mult(delta, this.translationVelocity));
-		else {
+		this.position = add(this.position, mult(delta, this.translationVelocity));
+		
+		if (this.offsetRotation.center !== null) {
 			this.offsetRotation.angle += this.offsetRotation.angleSpeed * delta;
 		    if (this.offsetRotation.axis[0] !== 0)
 				this.position = add(this.offsetRotation.center, mult(
