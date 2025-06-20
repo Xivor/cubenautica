@@ -6,6 +6,7 @@ var gShader = {};
 var gState = {
     lastTimeCapture: 0,
     pointerLocked: false,
+    pressedKeys: []
 };
 
 var gObjects = [];
@@ -80,10 +81,10 @@ function setupShaders() {
 }
 
 function setupEventListeners() {
-    gCanvas.addEventListener('click', lockPointer);
+    gCanvas.addEventListener("click", lockPointer);
     document.addEventListener("keydown", onKeyDown);
     document.addEventListener("keyup", onKeyUp);
     document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener('pointerlockchange', pointerLockChange, false);
-    document.addEventListener('mozpointerlockchange', pointerLockChange, false);
+    document.addEventListener("pointerlockchange", pointerLockChange, false);
+    document.addEventListener("mozpointerlockchange", pointerLockChange, false);
 }

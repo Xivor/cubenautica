@@ -10,6 +10,26 @@ class Camera {
         this.view = lookAt(this.position, this.at, this.up);
     }
 
+    move() {
+        this.translationVelocity[0] = 0;
+        if (gState.pressedKeys.includes('w'))
+            this.translationVelocity[0] += CAMERA_VELOCITY;
+        if (gState.pressedKeys.includes('s'))
+            this.translationVelocity[0] += -CAMERA_VELOCITY;
+
+        this.translationVelocity[1] = 0;
+        if (gState.pressedKeys.includes('a'))
+            this.translationVelocity[1] += CAMERA_VELOCITY;
+        if (gState.pressedKeys.includes('d'))
+            this.translationVelocity[1] += -CAMERA_VELOCITY;
+
+        this.translationVelocity[2] = 0;
+        if (gState.pressedKeys.includes(' '))
+            this.translationVelocity[2] += CAMERA_VELOCITY;
+        if (gState.pressedKeys.includes('shift'))
+            this.translationVelocity[2] += -CAMERA_VELOCITY;
+    }
+
     update(delta) {
         let rotation = mult(rotateZ(this.theta[1]), rotateX(this.theta[0]));
 

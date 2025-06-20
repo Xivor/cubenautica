@@ -1,51 +1,18 @@
-function lockPointer() {
-    if (!gState.pointerLocked) {
-        gCanvas.requestPointerLock = gCanvas.requestPointerLock || gCanvas.mozRequestPointerLock;
-        gCanvas.requestPointerLock();
-    }
-}
-
 function onKeyDown(event) {
-    if (!gState.pointerLocked) return;
-    switch(event.key.toLowerCase()) {
-        case 'w':
-            gCamera.translationVelocity[0] = CAMERA_ACCELERATION;
-            break;
-        case 's':
-            gCamera.translationVelocity[0] = -CAMERA_ACCELERATION;
-            break;
-        case 'a':
-            gCamera.translationVelocity[1] = CAMERA_ACCELERATION;
-            break;
-        case 'd':
-            gCamera.translationVelocity[1] = -CAMERA_ACCELERATION;
-            break;
-        case ' ':
-            gCamera.translationVelocity[2] = CAMERA_ACCELERATION;
-            break;
-        case 'shift':
-            gCamera.translationVelocity[2] = -CAMERA_ACCELERATION;
-            break;
-        case 'escape':
-            document.exitPointerLock();
-            break;
+    if (!gState.pointerLocked || !INTERACTION_KEYS.includes(event.key.toLowerCase())) return;
+    if (event.key.toLowerCase() === 'escape')
+        document.exitPointerLock();
+    else if (!gState.pressedKeys.includes(event.key.toLowerCase())) {
+        gState.pressedKeys.push(event.key.toLowerCase());
+        gCamera.move();
     }
 }
 
 function onKeyUp(event) {
-    switch(event.key.toLowerCase()) {
-        case 'w':
-        case 's':
-            gCamera.translationVelocity[0] = 0;
-            break;
-        case 'a':
-        case 'd':
-            gCamera.translationVelocity[1] = 0;
-            break;
-        case ' ':
-        case 'shift':
-            gCamera.translationVelocity[2] = 0;
-            break;
+    if (!INTERACTION_KEYS.includes(event.key.toLowerCase())) return;
+    if (gState.pressedKeys.includes(event.key.toLowerCase())) {
+        gState.pressedKeys = gState.pressedKeys.filter(key => key !== event.key.toLowerCase());
+        gCamera.move();
     }
 }
 
@@ -59,6 +26,13 @@ function onMouseMove(event) {
     gCamera.theta[1] += deltaX;
     gCamera.theta[0] += deltaY;
     gCamera.theta[0] = Math.max(-89, Math.min(89, gCamera.theta[0]));
+}
+
+function lockPointer() {
+    if (!gState.pointerLocked) {
+        gCanvas.requestPointerLock = gCanvas.requestPointerLock || gCanvas.mozRequestPointerLock;
+        gCanvas.requestPointerLock();
+    }
 }
 
 function pointerLockChange() {
