@@ -1,17 +1,12 @@
 var gl;
 var gCanvas;
+var gCamera;
 var gShader = {};
-
-let gCamera = {
-    "position": vec3(20, 20, 20),
-    "at": vec3(0, 0, 0),
-    "up": vec3(0, 0, 1),
-    "perspective": perspective(60, 1, 0.1, 200),
-    "view": lookAt(vec3(20, 20, 20), vec3(0, 0, 0), vec3(0, 0, 1)),
-};
 
 var gState = {
     lastTimeCapture: 0,
+    pointerLocked: false,
+    pressedKeys: []
 };
 
 var gObjects = [];
@@ -32,13 +27,9 @@ window.onload = function() {
 
     if (DEBUG) startFpsDisplay();
 
-    window.onkeydown = callbackKeyDown;
-
-    setupShaders();
-    gObjects.push(new Object(vec3(10, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
-    gObjects.push(new Object(mult(-1, vec3(10, 0, 0)), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
-    gAnimationController.createAnimation(TEST_ANIMATION, gObjects[0]);
-
+    setupEventListeners();
+    setupWorld();
+  
     gState.lastTimeCapture = Date.now();
     render();
 }
@@ -52,15 +43,25 @@ function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     gAnimationController.update();
-
+    
     for (let object of gObjects) {
         object.update(delta);
         object.render();
     }
-
+    
+    gCamera.update(delta);
+    gl.uniformMatrix4fv(gShader.uView, false, flatten(gCamera.view));
+  
     if (DEBUG) updateFpsDisplay(delta);
-
+  
     window.requestAnimationFrame(render);
+}
+
+function setupWorld() {
+    gCamera = new Camera();
+    setupShaders();
+    gObjects.push(new Object(vec3(10, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
+    gObjects.push(new Object(mult(-1, vec3(10, 0, 0)), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
 }
 
 function setupShaders() {
@@ -80,16 +81,20 @@ function setupShaders() {
     gShader.uColorEspecular = gl.getUniformLocation(gShader.program, "uColorEspecular");
     gShader.uAlphaEspecular = gl.getUniformLocation(gShader.program, "uAlphaEspecular");
     gShader.uLightPosition = gl.getUniformLocation(gShader.program, "uLightPosition");
-
-    gl.uniformMatrix4fv(gShader.uView, false, flatten(gCamera.view));
+    
     gl.uniformMatrix4fv(gShader.uPerspective, false, flatten(gCamera.perspective));
     gl.uniform4fv(gShader.uLightPosition, LIGHT.position);
     gl.uniform4fv(gShader.uColorEspecular, LIGHT.especular);
     gl.uniform1f(gShader.uAlphaEspecular, LIGHT.alpha);
 }
 
-function callbackKeyDown(event) {
-
+function setupEventListeners() {
+    gCanvas.addEventListener("click", lockPointer);
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keyup", onKeyUp);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("pointerlockchange", pointerLockChange, false);
+    document.addEventListener("mozpointerlockchange", pointerLockChange, false);
 }
 
 function startFpsDisplay() {

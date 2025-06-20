@@ -9,3 +9,10 @@ LIGHT = {
     especular: vec4(0.39, 0.39, 0.39, 1.0),
     alpha: 10.0
 }
+CAMERA_FOVY = 45.0;
+CAMERA_ASPECT = 1.0;
+CAMERA_NEAR = 1.0;
+CAMERA_FAR = 2000.0;
+CAMERA_VELOCITY = 50.0;
+CAMERA_SENSITIVITY = 0.05;
+INTERACTION_KEYS = ['w', 'a', 's', 'd', ' ', 'shift', 'escape'];
