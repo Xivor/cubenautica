@@ -1,8 +1,10 @@
 class Object {
-	constructor(position, rotation, scale, model) {
+	constructor(position, rotation, scale, shader, model, texture = null) {
 		this.position = position;
 		this.rotation = rotation;
 		this.scale = scale;
+		this.shader = shader;
+		this.texture = texture;
 		this.model = model.split('\n');
 		this.translationVelocity = vec3(0, 0, 0);
 		this.rotationVelocity = vec3(0, 0, 0);
@@ -87,7 +89,6 @@ class Object {
 	}
 
 	setupShader() {
-		this.shader = {...gShader};
 		this.vao = gl.createVertexArray();
 		gl.bindVertexArray(this.vao);
 
@@ -165,8 +166,8 @@ class Object {
 		gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(aPosition);
 
-		let bufNormais = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, bufNormais);
+		let normalsBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalsBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(cubeNormals), gl.STATIC_DRAW);
 
 		let aNormal = gl.getAttribLocation(this.shader.program, "aNormal");
