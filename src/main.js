@@ -1,8 +1,11 @@
 var gl;
 var gCanvas;
+
 var gAnimationController;
 var gCamera;
-var gShader = {};
+var gFloor;
+
+var gShaders = {};
 var gObjects = [];
 
 var gState = {
@@ -20,6 +23,8 @@ window.onload = function() {
     if (DEBUG) startFpsDisplay();
 
     setupShaders();
+    gCamera = new Camera();
+    gAnimationController = new AnimationController();
     setupWorld();
     setupEventListeners();
   
@@ -35,49 +40,20 @@ function render() {
     
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    gCamera.update(delta);
+    
+    renderFloor();
+
     gAnimationController.update();
     
     for (let object of gObjects) {
         object.update(delta);
         object.render();
     }
-    
-    gCamera.update(delta);
   
     if (DEBUG) updateFpsDisplay(delta);
   
     window.requestAnimationFrame(render);
-}
-
-function setupWorld() {
-    gCamera = new Camera();
-    gAnimationController = new AnimationController();
-    gObjects.push(new Object(vec3(10, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
-    gAnimationController.createAnimation(TEST_ANIMATION, gObjects[0]);
-    gObjects.push(new Object(mult(-1, vec3(10, 0, 0)), vec3(0, 0, 0), vec3(0, 0, 0), TEST_MODEL));
-}
-
-function setupShaders() {
-    gl.viewport(0, 0, gCanvas.width, gCanvas.height);
-    gl.clearColor(BACKGROUND_COLOR[0], BACKGROUND_COLOR[1], BACKGROUND_COLOR[2], BACKGROUND_COLOR[3]);
-    gl.enable(gl.DEPTH_TEST);
-
-    gShader.program = makeProgram(gl, VERTEX_SHADER, FRAGMENT_SHADER);
-    gl.useProgram(gShader.program);
-    
-    gShader.uModel = gl.getUniformLocation(gShader.program, "uModel");
-    gShader.uView = gl.getUniformLocation(gShader.program, "uView");
-    gShader.uPerspective = gl.getUniformLocation(gShader.program, "uPerspective");
-    gShader.uModelViewInverseTranspose = gl.getUniformLocation(gShader.program, "uModelViewInverseTranspose");
-    gShader.uColorAmbient = gl.getUniformLocation(gShader.program, "uColorAmbient");
-    gShader.uColorDiffusion = gl.getUniformLocation(gShader.program, "uColorDiffusion");
-    gShader.uColorEspecular = gl.getUniformLocation(gShader.program, "uColorEspecular");
-    gShader.uAlphaEspecular = gl.getUniformLocation(gShader.program, "uAlphaEspecular");
-    gShader.uLightPosition = gl.getUniformLocation(gShader.program, "uLightPosition");
-    
-    gl.uniform4fv(gShader.uLightPosition, LIGHT.position);
-    gl.uniform4fv(gShader.uColorEspecular, LIGHT.especular);
-    gl.uniform1f(gShader.uAlphaEspecular, LIGHT.alpha);
 }
 
 function setupEventListeners() {
