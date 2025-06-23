@@ -3,6 +3,7 @@ function setupWorld() {
     gObjects.push(new Object(vec3(10, 0, 5), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.basic, TEST_MODEL));
     gAnimationController.createAnimation(TEST_ANIMATION, gObjects[0]);
     gObjects.push(new Object(mult(-1, vec3(10, 0, -5)), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.basic, TEST_MODEL));
+    gObjects.push(new Object(mult(-1, vec3(30, 0, -5)), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.basic, TEST_MODEL));
 }
 
 function setupFloorVAO() {
