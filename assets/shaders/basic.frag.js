@@ -1,4 +1,4 @@
-const FRAGMENT_SHADER = `#version 300 es
+const BASIC_FRAGMENT_SHADER = `#version 300 es
 
 precision highp float;
 
