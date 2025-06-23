@@ -68,6 +68,7 @@ class Object {
 
 	render() {
 		gl.bindVertexArray(this.vao);
+		gl.useProgram(this.shader.program);
 
 		this.voxelList.forEach( voxel => {
 			let modelMatrix = translate(voxel.position[0], voxel.position[1], voxel.position[2]);
@@ -90,6 +91,7 @@ class Object {
 
 	setupShader() {
 		this.vao = gl.createVertexArray();
+		gl.useProgram(this.shader.program);
 		gl.bindVertexArray(this.vao);
 
 		let cubeVertexes = [

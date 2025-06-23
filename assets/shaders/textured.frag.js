@@ -2,6 +2,7 @@ const TEXTURED_FRAGMENT_SHADER = `#version 300 es
 
 precision highp float;
 
+in vec2 vTextureCoord;
 in vec3 vNormal;
 in vec3 vLight;
 in vec3 vView;
@@ -11,6 +12,7 @@ uniform vec4 uColorAmbient;
 uniform vec4 uColorDiffusion;
 uniform vec4 uColorEspecular;
 uniform float uAlphaEspecular;
+uniform sampler2D uTextureMap;
 
 void main() {
     vec3 normalV = normalize(vNormal);
@@ -27,7 +29,8 @@ void main() {
     }
     
     vec4 especular = ks * uColorEspecular;
-    outputColor = diffusion + especular + uColorAmbient;    
+    outputColor = diffusion + especular + uColorAmbient;
+    outputColor *= texture(uTextureMap, vTextureCoord);
     outputColor.a = 1.0;
 }
 `;

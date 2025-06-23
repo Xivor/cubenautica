@@ -2,6 +2,7 @@ const TEXTURED_VERTEX_SHADER = `#version 300 es
 
 in  vec4 aPosition;
 in  vec3 aNormal;
+in vec2 aTextureCoord;
 
 uniform mat4 uModel;
 uniform mat4 uView;
@@ -13,6 +14,7 @@ uniform vec4 uLightPosition;
 out vec3 vNormal;
 out vec3 vLight;
 out vec3 vView;
+out vec2 vTextureCoord;
 
 void main() {
     mat4 modelView = uView * uModel;
@@ -23,5 +25,7 @@ void main() {
 
     vLight = (uView * uLightPosition - position).xyz;
     vView = -(position.xyz);
+
+    vTextureCoord = aTextureCoord;
 }
 `;
