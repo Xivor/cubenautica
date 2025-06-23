@@ -5,7 +5,7 @@ var gAnimationController;
 var gCamera;
 var gFloor;
 
-var gShader = {};
+var gShaders = {};
 var gObjects = [];
 
 var gState = {

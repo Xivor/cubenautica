@@ -25,7 +25,7 @@ function setupShaders() {
     gl.clearColor(BACKGROUND_COLOR[0], BACKGROUND_COLOR[1], BACKGROUND_COLOR[2], BACKGROUND_COLOR[3]);
     gl.enable(gl.DEPTH_TEST);
 
-    gShader.basic = new Shader(BASIC_VERTEX_SHADER, BASIC_FRAGMENT_SHADER);
-    console.log(gShader.basic)
-    gShader.textured = new Shader(TEXTURED_VERTEX_SHADER, TEXTURED_FRAGMENT_SHADER);
+    gShaders.basic = new Shader(BASIC_VERTEX_SHADER, BASIC_FRAGMENT_SHADER);
+    console.log(gShaders.basic)
+    gShaders.textured = new Shader(TEXTURED_VERTEX_SHADER, TEXTURED_FRAGMENT_SHADER);
 }
