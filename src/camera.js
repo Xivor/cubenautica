@@ -1,7 +1,7 @@
 class Camera {
     constructor() {
-        this.position = vec3(0, 50, 0);
-        this.at = vec3(0, 0, 0);
+        this.position = vec3(0, 0, 10);
+        this.at = vec3(10, 0, 10);
         this.up = vec3(0, 0, 1);
         this.translationVelocity = vec3(0, 0, 0);
         this.theta = vec3(0, 0, 0);
@@ -50,5 +50,18 @@ class Camera {
         this.at = add(this.position, forward);
         this.view = lookAt(this.position, this.at, this.up);
         gl.uniformMatrix4fv(gShader.uView, false, flatten(gCamera.view));
+    
+        this.checkCollision();
+    }
+
+    checkCollision() {
+        for (let dimension = 0; dimension < 3; dimension++) {
+            if (this.position[dimension] < -(MAP_LIMIT+10)) {
+                this.position[dimension] = -(MAP_LIMIT+10);
+            } else if (this.position[dimension] > (MAP_LIMIT+10)) {
+                this.position[dimension] = MAP_LIMIT+10;
+            }
+        }
+        if (this.position[2] < 2) this.position[2] = 2;
     }
 }

@@ -10,6 +10,7 @@ CAMERA_FAR = 2000.0;
 CAMERA_SENSITIVITY = 0.08;
 
 BACKGROUND_COLOR = [0.2, 0.2, 0.6, 1.0];
+MAP_LIMIT = 200;
 LIGHT = {
     position: vec4(5, 5, 5, 1),
     ambient: vec4(0.47, 0.47, 0.47, 1.0),
