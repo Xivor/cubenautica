@@ -1,7 +1,6 @@
 class Shader {
     constructor(vertexProgram, fragmentProgram) {
         this.program = makeProgram(gl, vertexProgram, fragmentProgram);
-        // gl.useProgram(this.program);
 
         this.uModel = gl.getUniformLocation(this.program, "uModel");
         this.uView = gl.getUniformLocation(this.program, "uView");
@@ -12,13 +11,9 @@ class Shader {
         this.uColorEspecular = gl.getUniformLocation(this.program, "uColorEspecular");
         this.uAlphaEspecular = gl.getUniformLocation(this.program, "uAlphaEspecular");
         this.uLightPosition = gl.getUniformLocation(this.program, "uLightPosition");
-
-        // gl.uniform4fv(this.uLightPosition, LIGHT.position);
-        // gl.uniform4fv(this.uColorEspecular, LIGHT.especular);
-        // gl.uniform1f(this.uAlphaEspecular, LIGHT.alpha);
+        this.uColor = gl.getUniformLocation(this.program, "uColor");
     }
 }
-
 
 function setupShaders() {
     gl.viewport(0, 0, gCanvas.width, gCanvas.height);
@@ -28,9 +23,9 @@ function setupShaders() {
     gShaders.basic = new Shader(BASIC_VERTEX_SHADER, BASIC_FRAGMENT_SHADER);
     gShaders.textured = new Shader(TEXTURED_VERTEX_SHADER, TEXTURED_FRAGMENT_SHADER);
     gShaders.toon = new Shader(BASIC_VERTEX_SHADER, TOON_FRAGMENT_SHADER);
+    gShaders.line = new Shader(LINE_VERTEX_SHADER, LINE_FRAGMENT_SHADER);
     gShaders.postProcess = new Shader(POST_PROCESS_VERTEX_SHADER, POST_PROCESS_FRAGMENT_SHADER);
 }
-
 
 var gFramebuffer
 function setupFramebuffer() {
@@ -79,7 +74,6 @@ function setupFullScreenQuad() {
     gFullScreenQuadVao = gl.createVertexArray();
     gl.bindVertexArray(gFullScreenQuadVao);
 
-    // Position buffer
     const posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, quadPositions, gl.STATIC_DRAW);
@@ -87,7 +81,6 @@ function setupFullScreenQuad() {
     gl.enableVertexAttribArray(posAttrib);
     gl.vertexAttribPointer(posAttrib, 2, gl.FLOAT, false, 0, 0);
 
-    // TexCoord buffer
     const texCoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, quadTexCoords, gl.STATIC_DRAW);
@@ -98,25 +91,64 @@ function setupFullScreenQuad() {
     gl.bindVertexArray(null);
 }
 
-
 function renderPostProcess() {
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null); // Switch back to drawing to the screen
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Clear the actual screen
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // Use the wavy shader program
     const postProcessShader = gShaders.postProcess;
     gl.useProgram(postProcessShader.program);
 
-    // Bind the texture that contains our rendered scene
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, gFramebuffer.texture);
 
-    // Set the uniforms for the postProcess shader
     gl.uniform1i(gl.getUniformLocation(postProcessShader.program, "uSceneTexture"), 0);
     gl.uniform1f(gl.getUniformLocation(postProcessShader.program, "uTime"), gState.time);
 
-    // Draw the quad that covers the screen
     gl.bindVertexArray(gFullScreenQuadVao);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.bindVertexArray(null);
+}
+
+
+// LINE RENDERING - this is a debug object / shader that is a line with
+// given thickness, length and color, mainly used to indicate
+// vector directions
+
+var gLineVao;
+var gLinePositionBuffer;
+function setupLineRendering() {
+    gLineVAO = gl.createVertexArray();
+    gl.bindVertexArray(gLineVAO);
+
+    gLinePositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, gLinePositionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(18), gl.DYNAMIC_DRAW); // 6 vertices * 3 components
+
+    const aPosition = gl.getAttribLocation(gShaders.line.program, "aPosition");
+    gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(aPosition);
+
+    gl.bindVertexArray(null);
+}
+
+function renderDirectionIndicator(position, direction, color = [1, 0, 0, 1], thickness = 0.1) {
+    const LINE_LENGTH = 10;
+    const aspect = gl.canvas.width / gl.canvas.height;
+    const perspectiveMatrix = perspective(CAMERA_FOVY, aspect, CAMERA_NEAR, CAMERA_FAR);
+
+    const endPoint = add(position, mult(LINE_LENGTH, normalize(direction)));
+    const vertices = createThickLineGeometry(position, endPoint, thickness);
+
+    gl.bindVertexArray(gLineVAO);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gLinePositionBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(vertices.flatMap(v => [v[0], v[1], v[2]])));
+
+    gl.useProgram(gShaders.line.program);
+    gl.uniformMatrix4fv(gShaders.line.uModel, false, flatten(mat4()));
+    gl.uniformMatrix4fv(gShaders.line.uView, false, flatten(gCamera.view));
+    gl.uniformMatrix4fv(gShaders.line.uPerspective, false, flatten(perspectiveMatrix));
+    gl.uniform4fv(gShaders.line.uColor, color);
+
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     gl.bindVertexArray(null);
 }
