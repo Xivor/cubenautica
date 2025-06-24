@@ -50,9 +50,9 @@ function setupFloorVAO() {
 
     let textureCoords = [
         vec2(0.0, 0.0),
-        vec2(16.0, 0.0),
-        vec2(0.0, 16.0),
-        vec2(16.0, 16.0)
+        vec2(64.0, 0.0),
+        vec2(0.0, 64.0),
+        vec2(64.0, 64.0)
     ];
 
     let vertexBuffer = gl.createBuffer();
@@ -81,30 +81,15 @@ function setupFloorVAO() {
 
     gFloorTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, gFloorTexture);
-
-    // placeholder floor texture (solid color)
-    const level = 0;
-    const internalFormat = gl.RGBA;
-    const width = 1;
-    const height = 1;
-    const border = 0;
-    const srcFormat = gl.RGBA;
-    const srcType = gl.UNSIGNED_BYTE;
-    const pixel = new Uint8Array([0, 0, 255, 255]);
-    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, width, height, border, srcFormat, srcType, pixel);
-
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([234, 204, 111, 255]));
 
     var img = new Image();
-    img.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRIFznsJS37WaQCbXa4UJ8L51DLAnJQ1hvEA&s';
+    img.src = FLOOR_TEXTURE_URL;
     img.crossOrigin = "anonymous";
-    // console.log("Carregando imagem", img.src);
     img.addEventListener('load', function() {
-        // console.log("Carregou imagem", img.width, img.height);
         gl.bindTexture(gl.TEXTURE_2D, gFloorTexture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, img.width, img.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, img);
         gl.generateMipmap(gl.TEXTURE_2D);
-        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     });
     gl.bindVertexArray(null);
 }
