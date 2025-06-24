@@ -14,11 +14,17 @@ var gState = {
     pressedKeys: []
 };
 
+var aspect;
+var perspectiveMatrix;
+
 window.onload = function() {
     gCanvas = document.getElementById("glcanvas");
     gl = gCanvas.getContext('webgl2');
     gl.canvas.width  = window.innerWidth;
     gl.canvas.height = window.innerHeight;
+
+    aspect = gl.canvas.width / gl.canvas.height;
+    perspectiveMatrix = perspective(CAMERA_FOVY, aspect, CAMERA_NEAR, CAMERA_FAR);
 
     if (DEBUG) startFpsDisplay();
 
@@ -32,6 +38,7 @@ window.onload = function() {
     render();
 }
 
+
 function render() {
     let now, delta;
     now = Date.now();
@@ -41,6 +48,8 @@ function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     gCamera.update(delta);
+
+    const perspectiveView = mult(perspectiveMatrix, gCamera.view);
     
     renderFloor();
 
@@ -48,8 +57,15 @@ function render() {
     
     for (let object of gObjects) {
         object.update(delta);
-        object.render();
+
+        let perspectiveCoords = mult(perspectiveView, vec4(object.position[0], object.position[1], object.position[2], 1));
+        perspectiveCoords = mult(1/perspectiveCoords[3], perspectiveCoords);
+
+        if(perspectiveCoords[0] > -1 && perspectiveCoords[0] < 1 && 
+           perspectiveCoords[1] > -1 && perspectiveCoords[1] < 1 && 
+           perspectiveCoords[2] > -1 && perspectiveCoords[2] < 1) object.render();
     }
+
   
     if (DEBUG) updateFpsDisplay(delta);
   
