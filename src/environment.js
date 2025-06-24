@@ -1,10 +1,5 @@
 function setupWorld() {
     setupFloorVAO();
-    // gObjects.push(new Object(vec3(10, 0, 5), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.basic, TEST_MODEL));
-    // gAnimationController.createAnimation(TEST_ANIMATION, gObjects[0]);
-    // gObjects.push(new Object(mult(-1, vec3(10, 0, -5)), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.basic, TEST_MODEL));
-    // gObjects.push(new Object(mult(-1, vec3(30, -30, -5)), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, TEST_MODEL));
-    // gAnimationController.createAnimation(TEST_ANIMATION, gObjects[2]);
     gObjects.push(new Object(vec3(0, 4, 10), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, BIGFISH_RED_MODEL));
     gObjects.push(new Object(vec3(-10, 12, 10), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, BIGFISH_BLUE_MODEL));
     gObjects.push(new Object(vec3(21, 0, 20), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, BIGFISH_YELLOW_MODEL));
@@ -21,10 +16,10 @@ function setupFloorVAO() {
     gl.bindVertexArray(gFloor);
 
     let vertices = [
-        vec3(-MAP_LIMIT*2, -MAP_LIMIT*2, 0),
-        vec3(MAP_LIMIT*2, -MAP_LIMIT*2, 0),
-        vec3(-MAP_LIMIT*2, MAP_LIMIT*2, 0),
-        vec3(MAP_LIMIT*2, MAP_LIMIT*2, 0),
+        vec3(-MAP_LIMIT*3, -MAP_LIMIT*3, 0),
+        vec3(MAP_LIMIT*3, -MAP_LIMIT*3, 0),
+        vec3(-MAP_LIMIT*3, MAP_LIMIT*3, 0),
+        vec3(MAP_LIMIT*3, MAP_LIMIT*3, 0),
     ];
 
     let normals = [ vec3(0, 0, 1), vec3(0, 0, 1), vec3(0, 0, 1), vec3(0, 0, 1) ];
@@ -60,16 +55,28 @@ function setupFloorVAO() {
     gl.vertexAttribPointer(aTextureCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(aTextureCoord);
 
-    var texture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gFloorTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, gFloorTexture);
+
+    // placeholder floor texture (solid color)
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const width = 1;
+    const height = 1;
+    const border = 0;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+    const pixel = new Uint8Array([0, 0, 255, 255]);
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, width, height, border, srcFormat, srcType, pixel);
+
 
     var img = new Image();
     img.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRIFznsJS37WaQCbXa4UJ8L51DLAnJQ1hvEA&s';
     img.crossOrigin = "anonymous";
-    console.log("Carregando imagem", img.src);
+    // console.log("Carregando imagem", img.src);
     img.addEventListener('load', function() {
-        console.log("Carregou imagem", img.width, img.height);
+        // console.log("Carregou imagem", img.width, img.height);
+        gl.bindTexture(gl.TEXTURE_2D, gFloorTexture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, img.width, img.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, img);
         gl.generateMipmap(gl.TEXTURE_2D);
         // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -78,14 +85,19 @@ function setupFloorVAO() {
     gl.bindVertexArray(null);
 }
 
-function renderFloor() {
+function renderFloor(view, perspective) {
     gl.bindVertexArray(gFloor);
     gl.useProgram(gShaders.textured.program);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, gFloorTexture);
+    gl.uniform1i(gl.getUniformLocation(gShaders.textured.program, "uTexture"), 0);
+
     gl.uniform4fv(gShaders.textured.uColorAmbient, mult(LIGHT.ambient, vec4(1, 1, 1, 1)));
     gl.uniform4fv(gShaders.textured.uColorDiffusion, mult(LIGHT.diffusion, vec4(1, 1, 1, 1)));
     gl.uniformMatrix4fv(gShaders.textured.uModel, false, flatten(mat4()));
-    gl.uniformMatrix4fv(gShaders.textured.uView, false, flatten(gCamera.view));
-    gl.uniformMatrix4fv(gShaders.textured.uProjection, false, flatten(perspective(CAMERA_FOVY, CAMERA_ASPECT, CAMERA_NEAR, CAMERA_FAR)));
+    gl.uniformMatrix4fv(gShaders.textured.uView, false, flatten(view));
+    gl.uniformMatrix4fv(gShaders.textured.uProjection, false, flatten(perspective));
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.bindVertexArray(null);
 }
