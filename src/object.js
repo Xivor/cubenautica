@@ -70,6 +70,12 @@ class Object {
 		gl.bindVertexArray(this.vao);
 		gl.useProgram(this.shader.program);
 
+		gl.uniformMatrix4fv(this.shader.uView, false, flatten(gCamera.view));
+
+		const aspect = gl.canvas.width / gl.canvas.height;
+		const perspectiveMatrix = perspective(CAMERA_FOVY, aspect, CAMERA_NEAR, CAMERA_FAR);
+		gl.uniformMatrix4fv(this.shader.uPerspective, false, flatten(perspectiveMatrix));
+
 		this.voxelList.forEach( voxel => {
 			let modelMatrix = translate(voxel.position[0], voxel.position[1], voxel.position[2]);
 			modelMatrix = mult(translate(-this.center[0], -this.center[1], -this.center[2]), modelMatrix)
@@ -78,11 +84,11 @@ class Object {
 			modelMatrix = mult(mTranslation, mult(mRotate, modelMatrix));
 
 			let mInvTrans = inverse(transpose(mult(gCamera.view, modelMatrix)));
-			
-		    gl.uniformMatrix4fv(this.shader.uModel, false, flatten(modelMatrix));
-		    gl.uniformMatrix4fv(this.shader.uModelViewInverseTranspose, false, flatten(mInvTrans));
-		    gl.uniform4fv(this.shader.uColorAmbient, mult(LIGHT.ambient, voxel.color));
+
+			gl.uniformMatrix4fv(this.shader.uModel, false, flatten(modelMatrix));
+			gl.uniformMatrix4fv(this.shader.uModelViewInverseTranspose, false, flatten(mInvTrans));
 			gl.uniform4fv(this.shader.uColorDiffusion, mult(LIGHT.diffusion, voxel.color));
+			gl.uniform4fv(this.shader.uColorAmbient, mult(LIGHT.ambient, voxel.color));
     		gl.drawArrays(gl.TRIANGLES, 0, 36);
 		});
 
