@@ -43,3 +43,20 @@ class AnimationController {
         console.error("No animation found for the specified object.");
     }
 }
+
+class BoidController {
+    constructor() {
+        this.boids = [];
+    }
+
+    addBoid(boid) {
+        this.boids.push(boid);
+    }
+
+    update(delta) {
+        for (const boid of this.boids) {
+            boid.update(delta, this.boids);
+        }
+    }
+}
+

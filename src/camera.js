@@ -1,7 +1,7 @@
 class Camera {
     constructor() {
-        this.position = vec3(0, 0, 10);
-        this.at = vec3(10, 0, 10);
+        this.position = vec3(0, 80, 20);
+        this.at = vec3(0, 0, 0);
         this.up = vec3(0, 0, 1);
         this.translationVelocity = vec3(0, 0, 0);
         this.theta = vec3(0, 0, 0);
@@ -40,15 +40,18 @@ class Camera {
 
         let forward = mult(rotation, vec4(0, -1, 0, 0));
         forward = vec3(forward[0], forward[1], forward[2]);
-        this.position = add(this.position, mult(this.translationVelocity[0] * delta, forward));
 
-        let right = mult(rotation, vec4(1, 0, 0, 0));
+        let front = mult(rotateZ(this.theta[1]), vec4(0, -1, 0, 0));
+        front = vec3(front[0], front[1], front[2]);
+        this.position = add(this.position, mult(this.translationVelocity[0] * delta, front));
+
+        let right = mult(rotateZ(this.theta[1]), vec4(1, 0, 0, 0));
         right = vec3(right[0], right[1], right[2]);
         this.position = add(this.position, mult(this.translationVelocity[1] * delta, right));
 
         this.up = mult(rotation, vec4(0, 0, 1, 0));
         this.up = vec3(this.up[0], this.up[1], this.up[2]);
-        this.position = add(this.position, mult(this.translationVelocity[2] * delta, this.up));
+        this.position = add(this.position, mult(this.translationVelocity[2] * delta, vec3(0, 0, 1)));
 
         this.at = add(this.position, forward);
         this.view = lookAt(this.position, this.at, this.up);

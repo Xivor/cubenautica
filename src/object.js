@@ -14,11 +14,17 @@ class Object {
 			angle: 0,
 			angleSpeed: 0,
 		}
-		
+
+        this.calculateCenter();
+
+		this.setupShader();
+	}
+
+    calculateCenter() {
 		this.voxelList = [];
 		let maxPoint = vec3(-Infinity, -Infinity, -Infinity);
 		let minPoint = vec3(Infinity, Infinity, Infinity);
-		
+
 		for (let voxelProperties of this.model) {
 			if (voxelProperties === "") continue;
 			voxelProperties = voxelProperties.split(' ');
@@ -36,11 +42,8 @@ class Object {
 				"color": color,
 			});
 		}
-
 		this.center = mult(.5, add(maxPoint, minPoint));
-
-		this.setupShader();
-	}
+    }
 
 	update(delta) {
 		this.rotation = modVec3(add(this.rotation, mult(delta, this.rotationVelocity)), 360);
@@ -67,20 +70,11 @@ class Object {
 	}
 
 	render() {
-		gl.bindVertexArray(this.vao);
-		gl.useProgram(this.shader.program);
-
-		gl.uniformMatrix4fv(this.shader.uView, false, flatten(gCamera.view));
-
-		const aspect = gl.canvas.width / gl.canvas.height;
-		const perspectiveMatrix = perspective(CAMERA_FOVY, aspect, CAMERA_NEAR, CAMERA_FAR);
-		gl.uniformMatrix4fv(this.shader.uPerspective, false, flatten(perspectiveMatrix));
-
 		this.voxelList.forEach( voxel => {
 			let modelMatrix = translate(voxel.position[0], voxel.position[1], voxel.position[2]);
 			modelMatrix = mult(translate(-this.center[0], -this.center[1], -this.center[2]), modelMatrix)
 			let mTranslation = translate(this.position[0], this.position[1], this.position[2]);
-			let mRotate = mult(rotateZ(this.rotation[2]), mult(rotateY(this.rotation[1]), rotateX(this.rotation[0])));
+			let mRotate = this.rotationMatrix || mult(rotateZ(this.rotation[2]), mult(rotateY(this.rotation[1]), rotateX(this.rotation[0])));
 			modelMatrix = mult(mTranslation, mult(mRotate, modelMatrix));
 
 			let mInvTrans = inverse(transpose(mult(gCamera.view, modelMatrix)));
@@ -91,13 +85,10 @@ class Object {
 			gl.uniform4fv(this.shader.uColorAmbient, mult(LIGHT.ambient, voxel.color));
     		gl.drawArrays(gl.TRIANGLES, 0, 36);
 		});
-
-		gl.bindVertexArray(null);
 	}
 
 	setupShader() {
 		this.vao = gl.createVertexArray();
-		gl.useProgram(this.shader.program);
 		gl.bindVertexArray(this.vao);
 
 		let cubeVertexes = [

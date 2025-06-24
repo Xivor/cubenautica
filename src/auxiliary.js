@@ -49,6 +49,50 @@ function updateFpsDisplay(delta) {
     }
 }
 
+function randomRange(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
 function modVec3(v, m) {
     return vec3((v[0] + m) % m, (v[1] + m) % m, (v[2] + m) % m);
+}
+
+function distance(posFrom, posTo) {
+    let dx = posFrom[0] - posTo[0];
+    let dy = posFrom[1] - posTo[1];
+    let dz = posFrom[2] - posTo[2];
+    return Math.sqrt(dx*dx + dy*dy + dz*dz);
+}
+
+function limit(v, max) {
+    const len = length(v);
+    if (len > max) {
+        return mult(max / len, v);
+    }
+    return v;
+}
+
+function div(v, a) {
+    for (let i = 0; i < v.length; i++) {
+        v[i] = v[i] / a;
+    }
+    return v;
+}
+
+function createThickLineGeometry(start, end, thickness = 0.1) {
+    const direction = normalize(subtract(end, start));
+    const perpendicular = normalize(cross(direction, vec3(0, 0, 1)));
+    const halfThickness = thickness / 2;
+
+    const vertices = [
+        add(start, mult(halfThickness, perpendicular)),
+        add(end, mult(halfThickness, perpendicular)),
+        add(start, mult(-halfThickness, perpendicular)),
+
+        add(end, mult(halfThickness, perpendicular)),
+        add(end, mult(-halfThickness, perpendicular)),
+        add(start, mult(-halfThickness, perpendicular))
+    ];
+
+    return vertices;
 }

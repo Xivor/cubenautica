@@ -2,8 +2,10 @@ var gl;
 var gCanvas;
 
 var gAnimationController;
+var gBoidController;
 var gCamera;
 var gFloor;
+var gFloorTexture;
 
 var gShaders = {};
 var gObjects = [];
@@ -29,8 +31,12 @@ window.onload = function() {
     if (DEBUG) startFpsDisplay();
 
     setupShaders();
+    setupFramebuffer();
+    setupLineRendering();
+    setupFullScreenQuad();
     gCamera = new Camera();
     gAnimationController = new AnimationController();
+    gBoidController = new BoidController();
     setupWorld();
     setupEventListeners();
   
@@ -44,31 +50,66 @@ function render() {
     now = Date.now();
     delta = (now - gState.lastTimeCapture) / 1000;
     gState.lastTimeCapture = now;
-    
+    gState.time = (gState.time || 0);
+    gState.time += delta;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, gFramebuffer.fbo);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     gCamera.update(delta);
 
-    const perspectiveView = mult(perspectiveMatrix, gCamera.view);
-    
-    renderFloor();
+    const viewMatrix = gCamera.view;
+    renderFloor(viewMatrix, perspectiveMatrix);
+
+    const perspectiveView = mult(perspectiveMatrix, viewMatrix);
 
     gAnimationController.update();
+    gBoidController.update(delta);
     
+    let activeProgram = null;
     for (let object of gObjects) {
-        object.update(delta);
+        if (!(object instanceof Boid)) {
+            object.update(delta);
+        }
 
         let perspectiveCoords = mult(perspectiveView, vec4(object.position[0], object.position[1], object.position[2], 1));
         perspectiveCoords = mult(1/perspectiveCoords[3], perspectiveCoords);
 
-        if(perspectiveCoords[0] > -1 && perspectiveCoords[0] < 1 && 
+        if(!(perspectiveCoords[0] > -1 && perspectiveCoords[0] < 1 && 
            perspectiveCoords[1] > -1 && perspectiveCoords[1] < 1 && 
-           perspectiveCoords[2] > -1 && perspectiveCoords[2] < 1) object.render();
+           perspectiveCoords[2] > -1 && perspectiveCoords[2] < 1)) continue;//object.render();
+
+        if (object.shader.program !== activeProgram) {
+            activeProgram = object.shader.program;
+            gl.useProgram(activeProgram);
+            gl.uniformMatrix4fv(object.shader.uView, false, flatten(viewMatrix));
+            gl.uniformMatrix4fv(object.shader.uPerspective, false, flatten(perspectiveMatrix));
+            gl.uniform4fv(object.shader.uLightPosition, LIGHT.position);
+            if (object.shader === gShaders.basic) {
+                gl.uniform4fv(object.shader.uColorEspecular, LIGHT.especular);
+                gl.uniform1f(object.shader.uAlphaEspecular, LIGHT.alpha);
+            }
+        }
+        gl.bindVertexArray(object.vao);
+        object.render();
+        gl.bindVertexArray(null);
     }
 
-  
+    if (DEBUG) {
+        for (let object of gObjects) {
+            if (object instanceof Boid && length(object.velocity) > 0.1) {
+                renderDirectionIndicator(
+                    object.position,
+                    object.velocity,
+                    [1, 0, 0, 1],  // Red color
+                    1
+                );
+            }
+        }
+    }
+
+    renderPostProcess();
     if (DEBUG) updateFpsDisplay(delta);
-  
     window.requestAnimationFrame(render);
 }
 

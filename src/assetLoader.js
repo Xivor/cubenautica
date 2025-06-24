@@ -10,6 +10,10 @@ loadAsset("shaders/basic.frag.js");
 loadAsset("shaders/textured.vert.js");
 loadAsset("shaders/textured.frag.js");
 loadAsset("shaders/toon.frag.js");
+loadAsset("shaders/post_process.vert.js");
+loadAsset("shaders/post_process.frag.js");
+loadAsset("shaders/line.vert.js");
+loadAsset("shaders/line.frag.js");
 
 loadAsset("models/test-model.js")
 loadAsset("models/bigfish-blue.js");

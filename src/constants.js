@@ -10,6 +10,7 @@ CAMERA_FAR = 2000.0;
 CAMERA_SENSITIVITY = 0.08;
 
 BACKGROUND_COLOR = [0.2, 0.2, 0.6, 1.0];
+FLOOR_TEXTURE_URL = "https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c8/Sand_%28texture%29_JE5_BE3.png/revision/latest?cb=20201001140257";
 MAP_LIMIT = 200;
 LIGHT = {
     position: vec4(5, 5, 50, 1),
