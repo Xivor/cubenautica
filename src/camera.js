@@ -11,7 +11,7 @@ class Camera {
             gl.useProgram(gShaders[shader].program);
             gl.uniformMatrix4fv(gShaders[shader].uPerspective, false, flatten(perspective(CAMERA_FOVY, aspect, CAMERA_NEAR, CAMERA_FAR)));
         }
-        
+
         this.view = lookAt(this.position, this.at, this.up);
     }
 
@@ -53,11 +53,6 @@ class Camera {
         this.at = add(this.position, forward);
         this.view = lookAt(this.position, this.at, this.up);
 
-        for (let shader in gShaders) {
-            gl.useProgram(gShaders[shader].program);
-            gl.uniformMatrix4fv(gShaders[shader].uView, false, flatten(this.view));
-        }
-    
         this.checkCollision();
     }
 

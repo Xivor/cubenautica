@@ -12,7 +12,7 @@ CAMERA_SENSITIVITY = 0.08;
 BACKGROUND_COLOR = [0.2, 0.2, 0.6, 1.0];
 MAP_LIMIT = 200;
 LIGHT = {
-    position: vec4(5, 5, 5, 1),
+    position: vec4(5, 5, 50, 1),
     ambient: vec4(0.47, 0.47, 0.47, 1.0),
     diffusion: vec4(0.68, 0.68, 0.68, 1.0),
     especular: vec4(0.39, 0.39, 0.39, 1.0),
