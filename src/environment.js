@@ -1,10 +1,19 @@
 function setupWorld() {
     setupFloorVAO();
-    gObjects.push(new Object(vec3(10, 0, 5), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.basic, TEST_MODEL));
-    gAnimationController.createAnimation(TEST_ANIMATION, gObjects[0]);
-    gObjects.push(new Object(mult(-1, vec3(10, 0, -5)), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.basic, TEST_MODEL));
-    gObjects.push(new Object(mult(-1, vec3(30, -30, -5)), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, TEST_MODEL));
-    gAnimationController.createAnimation(TEST_ANIMATION, gObjects[2]);
+    // gObjects.push(new Object(vec3(10, 0, 5), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.basic, TEST_MODEL));
+    // gAnimationController.createAnimation(TEST_ANIMATION, gObjects[0]);
+    // gObjects.push(new Object(mult(-1, vec3(10, 0, -5)), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.basic, TEST_MODEL));
+    // gObjects.push(new Object(mult(-1, vec3(30, -30, -5)), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, TEST_MODEL));
+    // gAnimationController.createAnimation(TEST_ANIMATION, gObjects[2]);
+    gObjects.push(new Object(vec3(0, 4, 10), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, BIGFISH_RED_MODEL));
+    gObjects.push(new Object(vec3(-10, 12, 10), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, BIGFISH_BLUE_MODEL));
+    gObjects.push(new Object(vec3(21, 0, 20), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, BIGFISH_YELLOW_MODEL));
+    gObjects.push(new Object(vec3(-20, 0, 25), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, SMALLFISH_RED_MODEL));
+    gObjects.push(new Object(vec3(-25, -10, 15), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, SMALLFISH_BLUE_MODEL));
+    gObjects.push(new Object(vec3(20, 10, 10), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, SMALLFISH_YELLOW_MODEL));
+    gObjects.push(new Object(vec3(10, 35, 20), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, PUFFERFISH_RED_MODEL));
+    gObjects.push(new Object(vec3(-10, 25, 20), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, PUFFERFISH_BLUE_MODEL));
+    gObjects.push(new Object(vec3(10, 15, 20), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, PUFFERFISH_YELLOW_MODEL));
 }
 
 function setupFloorVAO() {
@@ -56,7 +65,7 @@ function setupFloorVAO() {
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     var img = new Image();
-    img.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flower_poster_2.jpg/1200px-Flower_poster_2.jpg';
+    // img.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flower_poster_2.jpg/1200px-Flower_poster_2.jpg';
     img.crossOrigin = "anonymous";
     console.log("Carregando imagem", img.src);
     img.addEventListener('load', function() {
