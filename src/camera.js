@@ -1,7 +1,7 @@
 class Camera {
     constructor() {
-        this.position = vec3(0, 0, 10);
-        this.at = vec3(10, 0, 10);
+        this.position = vec3(0, 80, 20);
+        this.at = vec3(0, 0, 0);
         this.up = vec3(0, 0, 1);
         this.translationVelocity = vec3(0, 0, 0);
         this.theta = vec3(0, 0, 0);
