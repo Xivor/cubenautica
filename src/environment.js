@@ -94,7 +94,7 @@ function setupFloorVAO() {
     gl.bindVertexArray(null);
 }
 
-function renderFloor(view, perspective) {
+function renderFloor() {
     gl.bindVertexArray(gFloor);
     gl.useProgram(gShaders.textured.program);
 
@@ -105,8 +105,8 @@ function renderFloor(view, perspective) {
     gl.uniform4fv(gShaders.textured.uColorAmbient, mult(LIGHT.ambient, vec4(1, 1, 1, 1)));
     gl.uniform4fv(gShaders.textured.uColorDiffusion, mult(LIGHT.diffusion, vec4(1, 1, 1, 1)));
     gl.uniformMatrix4fv(gShaders.textured.uModel, false, flatten(mat4()));
-    gl.uniformMatrix4fv(gShaders.textured.uView, false, flatten(view));
-    gl.uniformMatrix4fv(gShaders.textured.uProjection, false, flatten(perspective));
+    gl.uniformMatrix4fv(gShaders.textured.uView, false, flatten(gCamera.view));
+    gl.uniformMatrix4fv(gShaders.textured.uProjection, false, flatten(gCamera.perspective));
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.bindVertexArray(null);
 }

@@ -5,14 +5,8 @@ class Camera {
         this.up = vec3(0, 0, 1);
         this.translationVelocity = vec3(0, 0, 0);
         this.theta = vec3(0, 0, 0);
-
-        let aspect = window.innerWidth / window.innerHeight;
-        for (let shader in gShaders) {
-            gl.useProgram(gShaders[shader].program);
-            gl.uniformMatrix4fv(gShaders[shader].uPerspective, false, flatten(perspective(CAMERA_FOVY, aspect, CAMERA_NEAR, CAMERA_FAR)));
-        }
-
         this.view = lookAt(this.position, this.at, this.up);
+        this.computePerspective();
     }
 
     move() {
@@ -68,5 +62,14 @@ class Camera {
             }
         }
         if (this.position[2] < 2) this.position[2] = 2;
+    }
+
+    computePerspective() {
+        let aspect = window.innerWidth / window.innerHeight;
+        this.perspective = perspective(CAMERA_FOVY, aspect, CAMERA_NEAR, CAMERA_FAR);
+        for (let shader in gShaders) {
+            gl.useProgram(gShaders[shader].program);
+            gl.uniformMatrix4fv(gShaders[shader].uPerspective, false, flatten(this.perspective));
+        }
     }
 }

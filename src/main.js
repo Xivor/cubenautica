@@ -16,17 +16,11 @@ var gState = {
     pressedKeys: []
 };
 
-var aspect;
-var perspectiveMatrix;
-
 window.onload = function() {
     gCanvas = document.getElementById("glcanvas");
     gl = gCanvas.getContext('webgl2');
     gl.canvas.width  = window.innerWidth;
     gl.canvas.height = window.innerHeight;
-
-    aspect = gl.canvas.width / gl.canvas.height;
-    perspectiveMatrix = perspective(CAMERA_FOVY, aspect, CAMERA_NEAR, CAMERA_FAR);
 
     if (DEBUG) startFpsDisplay();
 
@@ -58,10 +52,7 @@ function render() {
 
     gCamera.update(delta);
 
-    const viewMatrix = gCamera.view;
-    renderFloor(viewMatrix, perspectiveMatrix);
-
-    const perspectiveView = mult(perspectiveMatrix, viewMatrix);
+    renderFloor();
 
     gAnimationController.update();
     gBoidController.update(delta);
@@ -72,7 +63,7 @@ function render() {
             object.update(delta);
         }
 
-        let perspectiveCoords = mult(perspectiveView, vec4(object.position[0], object.position[1], object.position[2], 1));
+        let perspectiveCoords = mult(mult(gCamera.perspective, gCamera.view), vec4(object.position[0], object.position[1], object.position[2], 1));
         perspectiveCoords = mult(1/perspectiveCoords[3], perspectiveCoords);
 
         if(!(perspectiveCoords[0] > -1 && perspectiveCoords[0] < 1 && 
@@ -82,8 +73,8 @@ function render() {
         if (object.shader.program !== activeProgram) {
             activeProgram = object.shader.program;
             gl.useProgram(activeProgram);
-            gl.uniformMatrix4fv(object.shader.uView, false, flatten(viewMatrix));
-            gl.uniformMatrix4fv(object.shader.uPerspective, false, flatten(perspectiveMatrix));
+            gl.uniformMatrix4fv(object.shader.uView, false, flatten(gCamera.view));
+            gl.uniformMatrix4fv(object.shader.uPerspective, false, flatten(gCamera.perspective));
             gl.uniform4fv(object.shader.uLightPosition, LIGHT.position);
             if (object.shader === gShaders.basic) {
                 gl.uniform4fv(object.shader.uColorEspecular, LIGHT.especular);
