@@ -67,15 +67,6 @@ class Object {
 	}
 
 	render() {
-		gl.bindVertexArray(this.vao);
-		gl.useProgram(this.shader.program);
-
-		gl.uniformMatrix4fv(this.shader.uView, false, flatten(gCamera.view));
-
-		const aspect = gl.canvas.width / gl.canvas.height;
-		const perspectiveMatrix = perspective(CAMERA_FOVY, aspect, CAMERA_NEAR, CAMERA_FAR);
-		gl.uniformMatrix4fv(this.shader.uPerspective, false, flatten(perspectiveMatrix));
-
 		this.voxelList.forEach( voxel => {
 			let modelMatrix = translate(voxel.position[0], voxel.position[1], voxel.position[2]);
 			modelMatrix = mult(translate(-this.center[0], -this.center[1], -this.center[2]), modelMatrix)
@@ -91,13 +82,10 @@ class Object {
 			gl.uniform4fv(this.shader.uColorAmbient, mult(LIGHT.ambient, voxel.color));
     		gl.drawArrays(gl.TRIANGLES, 0, 36);
 		});
-
-		gl.bindVertexArray(null);
 	}
 
 	setupShader() {
 		this.vao = gl.createVertexArray();
-		gl.useProgram(this.shader.program);
 		gl.bindVertexArray(this.vao);
 
 		let cubeVertexes = [
