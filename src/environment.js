@@ -31,9 +31,9 @@ function setupFloorVAO() {
 
     let textureCoords = [
         vec2(0.0, 0.0),
-        vec2(1.0, 0.0),
-        vec2(0.0, 1.0),
-        vec2(1.0, 1.0)
+        vec2(16.0, 0.0),
+        vec2(0.0, 16.0),
+        vec2(16.0, 16.0)
     ];
 
     let vertexBuffer = gl.createBuffer();
@@ -65,7 +65,7 @@ function setupFloorVAO() {
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     var img = new Image();
-    // img.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flower_poster_2.jpg/1200px-Flower_poster_2.jpg';
+    img.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRIFznsJS37WaQCbXa4UJ8L51DLAnJQ1hvEA&s';
     img.crossOrigin = "anonymous";
     console.log("Carregando imagem", img.src);
     img.addEventListener('load', function() {
