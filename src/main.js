@@ -2,6 +2,7 @@ var gl;
 var gCanvas;
 
 var gAnimationController;
+var gBoidController;
 var gCamera;
 var gFloor;
 var gFloorTexture;
@@ -25,9 +26,11 @@ window.onload = function() {
 
     setupShaders();
     setupFramebuffer();
+    setupLineRendering();
     setupFullScreenQuad();
     gCamera = new Camera();
     gAnimationController = new AnimationController();
+    gBoidController = new BoidController();
     setupWorld();
     setupEventListeners();
   
@@ -54,10 +57,13 @@ function render() {
     renderFloor(viewMatrix, perspectiveMatrix);
 
     gAnimationController.update();
+    gBoidController.update(delta);
     
     let activeProgram = null;
     for (let object of gObjects) {
-        object.update(delta);
+        if (!(object instanceof Boid)) {
+            object.update(delta);
+        }
         if (object.shader.program !== activeProgram) {
             activeProgram = object.shader.program;
             gl.useProgram(activeProgram);
@@ -73,6 +79,20 @@ function render() {
         object.render();
         gl.bindVertexArray(null);
     }
+
+    if (DEBUG) {
+        for (let object of gObjects) {
+            if (object instanceof Boid && length(object.velocity) > 0.1) {
+                renderDirectionIndicator(
+                    object.position,
+                    object.velocity,
+                    [1, 0, 0, 1],  // Red color
+                    1
+                );
+            }
+        }
+    }
+
     renderPostProcess();
     if (DEBUG) updateFpsDisplay(delta);
     window.requestAnimationFrame(render);

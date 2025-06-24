@@ -1,14 +1,38 @@
 function setupWorld() {
     setupFloorVAO();
-    gObjects.push(new Object(vec3(0, 4, 10), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, BIGFISH_RED_MODEL));
-    gObjects.push(new Object(vec3(-10, 12, 10), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, BIGFISH_BLUE_MODEL));
-    gObjects.push(new Object(vec3(21, 0, 20), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, BIGFISH_YELLOW_MODEL));
-    gObjects.push(new Object(vec3(-20, 0, 25), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, SMALLFISH_RED_MODEL));
-    gObjects.push(new Object(vec3(-25, -10, 15), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, SMALLFISH_BLUE_MODEL));
-    gObjects.push(new Object(vec3(20, 10, 10), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, SMALLFISH_YELLOW_MODEL));
-    gObjects.push(new Object(vec3(10, 35, 20), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, PUFFERFISH_RED_MODEL));
-    gObjects.push(new Object(vec3(-10, 25, 20), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, PUFFERFISH_BLUE_MODEL));
-    gObjects.push(new Object(vec3(10, 15, 20), vec3(0, 0, 0), vec3(0, 0, 0), gShaders.toon, PUFFERFISH_YELLOW_MODEL));
+    for (let i = 0; i < 15; i++) {
+        let randomModelNum = Math.floor(randomRange(0, 3));
+
+        let fishmodel = SMALLFISH_BLUE_MODEL;
+        switch (randomModelNum) {
+            case 0:
+                fishmodel = SMALLFISH_RED_MODEL;
+                break;
+            case 1:
+                fishmodel = SMALLFISH_BLUE_MODEL;
+                break;
+            case 2:
+                fishmodel = SMALLFISH_YELLOW_MODEL;
+                break;
+        }
+        gObjects.push(new Boid(
+            vec3(
+                randomRange(0, 30),
+                randomRange(0, 30),
+                randomRange(0, 30)
+            ),
+            vec3(0, 0, 0),
+            vec3(1,1,1),
+            gShaders.basic,
+            fishmodel
+        ));
+    }
+
+    for (const obj of gObjects) {
+        if (obj instanceof Boid) {
+            gBoidController.addBoid(obj);
+        }
+    }
 }
 
 function setupFloorVAO() {
