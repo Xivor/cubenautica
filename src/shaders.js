@@ -12,6 +12,7 @@ class Shader {
         this.uAlphaEspecular = gl.getUniformLocation(this.program, "uAlphaEspecular");
         this.uLightPosition = gl.getUniformLocation(this.program, "uLightPosition");
         this.uColor = gl.getUniformLocation(this.program, "uColor");
+        this.uOutline = gl.getUniformLocation(this.program, "uOutline");
     }
 }
 

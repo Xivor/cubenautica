@@ -7,7 +7,7 @@ class Boid extends Object {
       (Math.random() - 0.5) * 2
     );
     this.maxSpeed = 20.0;
-    this.maxForce = 0.5;
+    this.maxForce = 1.0;
     this.perceptionRadius = 30.0;
     this.calculateCenter();
   }
@@ -39,7 +39,7 @@ updateRotation() {
     if (length(this.velocity) > 0.1) {
       const v = normalize(this.velocity);
       const horizontalSpeed = Math.sqrt(v[0]*v[0] + v[1]*v[1]);
-      this.rotation[0] = -Math.atan2(v[2], horizontalSpeed) * 180 / Math.PI;
+      this.rotation[0] = Math.atan2(v[2], horizontalSpeed) * 180 / Math.PI;
       this.rotation[1] = 0;
       this.rotation[2] = Math.atan2(v[1], v[0]) * 180 / Math.PI;
     }
@@ -78,6 +78,14 @@ updateRotation() {
         steering = add(steering, normalize(diff));
         count++;
       }
+    }
+
+    // consider camera
+    const d = distance(this.position, gCamera.position);
+    if (d < this.perceptionRadius / 2) {
+      const diff = subtract(this.position, gCamera.position);
+      steering = add(steering, normalize(diff));
+      count++;
     }
 
     if (count > 0) {
