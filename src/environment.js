@@ -1,32 +1,13 @@
 function setupWorld() {
     setupFloorVAO();
-    for (let i = 0; i < 15; i++) {
-        let randomModelNum = Math.floor(randomRange(0, 3));
+    for (let i = 0; i < FISH_NUMBER; i++)
+        spawnFish();
 
-        let fishmodel = SMALLFISH_BLUE_MODEL;
-        switch (randomModelNum) {
-            case 0:
-                fishmodel = SMALLFISH_RED_MODEL;
-                break;
-            case 1:
-                fishmodel = SMALLFISH_BLUE_MODEL;
-                break;
-            case 2:
-                fishmodel = SMALLFISH_YELLOW_MODEL;
-                break;
-        }
-        gObjects.push(new Boid(
-            vec3(
-                randomRange(0, 30),
-                randomRange(0, 30),
-                randomRange(0, 30)
-            ),
-            vec3(0, 0, 0),
-            vec3(1,1,1),
-            gShaders.basic,
-            fishmodel
-        ));
-    }
+    for (let i = 0; i < ROCK_NUMBER; i++)
+        spawnRock();
+
+    for (let i = 0; i < KELP_NUMBER; i++)
+        spawnKelp();
 
     for (const obj of gObjects) {
         if (obj instanceof Boid) {
@@ -109,4 +90,63 @@ function renderFloor() {
     gl.uniformMatrix4fv(gShaders.textured.uProjection, false, flatten(gCamera.perspective));
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.bindVertexArray(null);
+}
+
+function spawnFish() {
+    let randomModel = randomRange(0, 1);
+    let randomColor = randomRange(0, 1);
+    let model = null;
+    if (randomModel < 0.5) // Spawn a small fish
+        if (randomColor < 0.33)
+            model = SMALLFISH_RED_MODEL;
+        else if (randomColor < 0.66)
+            model = SMALLFISH_BLUE_MODEL;
+        else
+            model = SMALLFISH_YELLOW_MODEL;
+    else if (randomModel < 0.8) // Spawn a big fish
+        if (randomColor < 0.33)
+            model = BIGFISH_RED_MODEL;
+        else if (randomColor < 0.66)
+            model = BIGFISH_BLUE_MODEL;
+        else
+            model = BIGFISH_YELLOW_MODEL;
+    else // Spawn a pufferfish
+        if (randomColor < 0.33)
+            model = PUFFERFISH_RED_MODEL;
+        else if (randomColor < 0.66)
+            model = PUFFERFISH_BLUE_MODEL;
+        else
+            model = PUFFERFISH_YELLOW_MODEL;
+
+    let position = vec3(
+        randomRange(-(MAP_LIMIT-5), (MAP_LIMIT-5)),
+        randomRange(-(MAP_LIMIT-5), (MAP_LIMIT-5)),
+        randomRange(0, (MAP_LIMIT-5))
+    );
+    gObjects.push(new Boid(position, vec3(0, 0, 0), vec3(1, 1, 1), gShaders.toon, model));
+}
+
+function spawnRock() {
+    let randomModel = randomRange(0, 1);
+    let model = null;
+    if (randomModel < 0.5) // Spawn a small rock
+        model = SMALL_ROCK_MODEL;
+    else // Spawn a big rock
+        model = BIG_ROCK_MODEL;
+    let position = vec3(
+        randomRange(-(MAP_LIMIT*3-20), (MAP_LIMIT*3-20)),
+        randomRange(-(MAP_LIMIT*3-20), (MAP_LIMIT*3-20)),
+        randomRange(0, 5)
+    );
+    gObjects.push(new Object(position, vec3(0, 0, 0), vec3(1, 1, 1), gShaders.textured, model));
+}
+
+function spawnKelp() {
+    let randomModel = randomRange(0, 1);
+    let position = vec3(
+        randomRange(-(MAP_LIMIT*3-20), (MAP_LIMIT*3-20)),
+        randomRange(-(MAP_LIMIT*3-20), (MAP_LIMIT*3-20)),
+        randomRange(0, 5)
+    );
+    gObjects.push(new Object(position, vec3(0, 0, 0), vec3(1, 1, 1), gShaders.textured, SMALL_KELP_MODEL));
 }

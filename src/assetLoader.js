@@ -25,5 +25,10 @@ loadAsset("models/smallfish-yellow.js");
 loadAsset("models/pufferfish-blue.js");
 loadAsset("models/pufferfish-red.js");
 loadAsset("models/pufferfish-yellow.js");
+loadAsset("models/smallrock.js");
+loadAsset("models/mediumrock.js");
+loadAsset("models/bigrock.js");
+loadAsset("models/smallkelp.js");
+
 
 loadAsset("animations/test-animation.js");
