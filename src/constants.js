@@ -1,5 +1,5 @@
 INTERACTION_KEYS = ['w', 'a', 's', 'd', ' ', 'shift', 'escape'];
-DEBUG = true;
+DEBUG = false;
 DEBUG_UPDATE_INTERVAL = 500; // ms
 DISTANCE_ACCURACY = 0.5; // Margin for error in animations
 
@@ -9,7 +9,7 @@ CAMERA_NEAR = 1.0;
 CAMERA_FAR = 2000.0;
 CAMERA_SENSITIVITY = 0.08;
 
-BACKGROUND_COLOR = [0.2, 0.2, 0.6, 1.0];
+BACKGROUND_COLOR = [70/255, 91/255, 101/255, 1.0];
 FLOOR_TEXTURE_URL = "https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c8/Sand_%28texture%29_JE5_BE3.png/revision/latest?cb=20201001140257";
 MAP_LIMIT = 200;
 LIGHT = {
