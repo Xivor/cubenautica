@@ -9,7 +9,6 @@ class Boid extends Object {
     this.maxSpeed = 20.0;
     this.maxForce = 1.0;
     this.perceptionRadius = 30.0;
-    this.calculateCenter();
   }
 
   update(delta, boids) {

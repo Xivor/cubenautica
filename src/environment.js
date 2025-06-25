@@ -98,25 +98,25 @@ function spawnFish() {
     let model = null;
     if (randomModel < 0.5) // Spawn a small fish
         if (randomColor < 0.33)
-            model = SMALLFISH_RED_MODEL;
+            model = gModelLoader.models["smallfish_red"];
         else if (randomColor < 0.66)
-            model = SMALLFISH_BLUE_MODEL;
+            model = gModelLoader.models["smallfish_blue"];
         else
-            model = SMALLFISH_YELLOW_MODEL;
+            model = gModelLoader.models["smallfish_yellow"];
     else if (randomModel < 0.8) // Spawn a big fish
         if (randomColor < 0.33)
-            model = BIGFISH_RED_MODEL;
+            model = gModelLoader.models["bigfish_red"];
         else if (randomColor < 0.66)
-            model = BIGFISH_BLUE_MODEL;
+            model = gModelLoader.models["bigfish_blue"];
         else
-            model = BIGFISH_YELLOW_MODEL;
+            model = gModelLoader.models["bigfish_yellow"];
     else // Spawn a pufferfish
         if (randomColor < 0.33)
-            model = PUFFERFISH_RED_MODEL;
+            model = gModelLoader.models["pufferfish_red"];
         else if (randomColor < 0.66)
-            model = PUFFERFISH_BLUE_MODEL;
+            model = gModelLoader.models["pufferfish_blue"];
         else
-            model = PUFFERFISH_YELLOW_MODEL;
+            model = gModelLoader.models["pufferfish_yellow"];
 
     let position = vec3(
         randomRange(-(MAP_LIMIT-5), (MAP_LIMIT-5)),
@@ -130,9 +130,9 @@ function spawnRock() {
     let randomModel = randomRange(0, 1);
     let model = null;
     if (randomModel < 0.5) // Spawn a small rock
-        model = SMALL_ROCK_MODEL;
+        model = gModelLoader.models["small_rock"];
     else // Spawn a big rock
-        model = BIG_ROCK_MODEL;
+        model = gModelLoader.models["big_rock"];
     let position = vec3(
         randomRange(-(MAP_LIMIT*3-20), (MAP_LIMIT*3-20)),
         randomRange(-(MAP_LIMIT*3-20), (MAP_LIMIT*3-20)),
@@ -142,11 +142,10 @@ function spawnRock() {
 }
 
 function spawnKelp() {
-    let randomModel = randomRange(0, 1);
     let position = vec3(
         randomRange(-(MAP_LIMIT*3-20), (MAP_LIMIT*3-20)),
         randomRange(-(MAP_LIMIT*3-20), (MAP_LIMIT*3-20)),
         randomRange(0, 5)
     );
-    gObjects.push(new Object(position, vec3(0, 0, 0), vec3(1, 1, 1), gShaders.textured, SMALL_KELP_MODEL));
+    gObjects.push(new Object(position, vec3(0, 0, 0), vec3(1, 1, 1), gShaders.textured, gModelLoader.models["small_kelp"]));
 }
