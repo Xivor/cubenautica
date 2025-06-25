@@ -74,8 +74,9 @@ class Object {
 			let modelMatrix = translate(voxel.position[0], voxel.position[1], voxel.position[2]);
 			modelMatrix = mult(translate(-this.center[0], -this.center[1], -this.center[2]), modelMatrix)
 			let mTranslation = translate(this.position[0], this.position[1], this.position[2]);
+            let mScale = scale(this.scale[0], this.scale[1], this.scale[2]);
 			let mRotate = this.rotationMatrix || mult(rotateZ(this.rotation[2]), mult(rotateY(this.rotation[1]), rotateX(this.rotation[0])));
-			modelMatrix = mult(mTranslation, mult(mRotate, modelMatrix));
+			modelMatrix = mult(mTranslation, mult(mRotate, mult(mScale, modelMatrix)));
 
 			let mInvTrans = inverse(transpose(mult(gCamera.view, modelMatrix)));
 

@@ -85,6 +85,24 @@ function render() {
                 gl.uniform1f(object.shader.uAlphaEspecular, LIGHT.alpha);
             }
         }
+        if (object.shader === gShaders.toon) {
+            // draw back faces as black to create outline
+            gl.uniform1f(object.shader.uOutline, 0.0);
+            const scale = object.scale;
+            object.scale = mult(1.05, scale);
+
+            gl.enable(gl.CULL_FACE);
+            gl.cullFace(gl.FRONT);
+            gl.bindVertexArray(object.vao);
+            object.render();
+            gl.bindVertexArray(null);
+            object.scale = scale;
+
+            gl.uniform1f(object.shader.uOutline, 1.0);
+        }
+
+        gl.disable(gl.CULL_FACE);
+        gl.cullFace(gl.BACK);
         gl.bindVertexArray(object.vao);
         object.render();
         gl.bindVertexArray(null);
