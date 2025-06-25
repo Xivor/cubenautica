@@ -29,6 +29,7 @@ class Object {
 			if (voxelProperties === "") continue;
 			voxelProperties = voxelProperties.split(' ');
 			let position = vec3(voxelProperties[0], voxelProperties[1], voxelProperties[2]);
+			let position = vec3(Number(voxelProperties[0]), Number(voxelProperties[1]), Number(voxelProperties[2]));
 
 			for (let i = 0; i < 3; i++) {
 				if (voxelProperties[i] < minPoint[i]) minPoint[i] = Number(voxelProperties[i]);
@@ -122,12 +123,12 @@ class Object {
 
 			// Right face
 			vec3(.5, .5, .5),
-			vec3(.5, .5, -.5),
 			vec3(.5, -.5, .5),
+			vec3(.5, .5, -.5),
 
 			vec3(.5, -.5, .5),
-			vec3(.5, .5, -.5),
 			vec3(.5, -.5, -.5),
+			vec3(.5, .5, -.5),
 
 			// Top face
 			vec3(.5, .5, .5),
