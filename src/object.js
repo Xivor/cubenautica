@@ -44,13 +44,15 @@ class Object {
 	}
 
 	render() {
+
+		let mTranslation = translate(this.position[0], this.position[1], this.position[2]);
+		let mRotate = this.rotationMatrix || mult(rotateZ(this.rotation[2]), mult(rotateY(this.rotation[1]), rotateX(this.rotation[0])));
+        let mScale = scale(this.scale[0], this.scale[1], this.scale[2]);
+		let mTRS = mult(mTranslation, mult(mRotate, mScale)); 
+
 		this.voxelList.forEach( voxel => {
-			let modelMatrix = translate(voxel.position[0], voxel.position[1], voxel.position[2]);
-			modelMatrix = mult(translate(-this.center[0], -this.center[1], -this.center[2]), modelMatrix)
-			let mTranslation = translate(this.position[0], this.position[1], this.position[2]);
-            let mScale = scale(this.scale[0], this.scale[1], this.scale[2]);
-			let mRotate = this.rotationMatrix || mult(rotateZ(this.rotation[2]), mult(rotateY(this.rotation[1]), rotateX(this.rotation[0])));
-			modelMatrix = mult(mTranslation, mult(mRotate, mult(mScale, modelMatrix)));
+
+			let modelMatrix = mult(mTRS, voxel.modelMatrix);
 
 			let mInvTrans = inverse(transpose(mult(gCamera.view, modelMatrix)));
 
@@ -226,6 +228,12 @@ class ModelLoader {
 			voxelList: voxelList,
 			center: mult(0.5, add(maxPoint, minPoint)),
 		};
+		
+		for (let voxel of voxelList) {
+			let center = this.models[name].center;
+			let modelMatrix = translate(voxel.position[0], voxel.position[1], voxel.position[2]);
+			voxel.modelMatrix = mult(translate(-center[0], -center[1], -center[2]), modelMatrix);
+		}
 		
 		if(DEBUG) console.log(`Model ${name} loaded with ${voxelList.length} voxels.`);
 	}
