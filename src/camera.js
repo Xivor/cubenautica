@@ -1,10 +1,10 @@
 class Camera {
     constructor() {
-        this.position = vec3(0, 80, 20);
+        this.position = vec3(0, 80, 10);
         this.at = vec3(0, 0, 0);
         this.up = vec3(0, 0, 1);
         this.translationVelocity = vec3(0, 0, 0);
-        this.theta = vec3(0, 0, 0);
+        this.theta = vec3(-90, 0, 0);
         this.view = lookAt(this.position, this.at, this.up);
         this.computePerspective();
     }

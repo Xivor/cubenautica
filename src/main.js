@@ -13,7 +13,10 @@ var gObjects = [];
 var gState = {
     lastTimeCapture: 0,
     pointerLocked: false,
-    pressedKeys: []
+    pressedKeys: [],
+    pausedTime: 0,
+    pauseDelta: 0,
+    paused: true,
 };
 
 window.onload = function() {
@@ -35,6 +38,7 @@ window.onload = function() {
     setupEventListeners();
   
     gState.lastTimeCapture = Date.now();
+    gState.pausedTime = Date.now();
     render();
 }
 
@@ -101,7 +105,7 @@ function render() {
 
     renderPostProcess();
     if (DEBUG) updateFpsDisplay(delta);
-    window.requestAnimationFrame(render);
+    if(!gState.paused) window.requestAnimationFrame(render);
 }
 
 function setupEventListeners() {

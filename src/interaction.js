@@ -40,4 +40,10 @@ function pointerLockChange() {
         document.pointerLockElement === gCanvas ||
         document.mozPointerLockElement === gCanvas
     );
+    gState.paused = !gState.pointerLocked;
+    if (!gState.paused){
+        gState.lastTimeCapture += Date.now() - gState.pausedTime;
+        render();
+    }
+    else gState.pausedTime = Date.now();
 }
