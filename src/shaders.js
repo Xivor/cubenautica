@@ -20,6 +20,8 @@ function setupShaders() {
     gl.viewport(0, 0, gCanvas.width, gCanvas.height);
     gl.clearColor(BACKGROUND_COLOR[0], BACKGROUND_COLOR[1], BACKGROUND_COLOR[2], BACKGROUND_COLOR[3]);
     gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
 
     gShaders.basic = new Shader(BASIC_VERTEX_SHADER, BASIC_FRAGMENT_SHADER);
     gShaders.textured = new Shader(TEXTURED_VERTEX_SHADER, TEXTURED_FRAGMENT_SHADER);

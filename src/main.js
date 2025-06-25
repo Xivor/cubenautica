@@ -3,6 +3,7 @@ var gCanvas;
 
 var gAnimationController;
 var gBoidController;
+var gModelLoader;
 var gCamera;
 var gFloor;
 var gFloorTexture;
@@ -31,6 +32,7 @@ window.onload = function() {
     setupFramebuffer();
     setupLineRendering();
     setupFullScreenQuad();
+    gModelLoader = new ModelLoader();
     gCamera = new Camera();
     gAnimationController = new AnimationController();
     gBoidController = new BoidController();
