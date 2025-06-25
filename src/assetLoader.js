@@ -30,5 +30,4 @@ loadAsset("models/mediumrock.js");
 loadAsset("models/bigrock.js");
 loadAsset("models/smallkelp.js");
 
-
 loadAsset("animations/test-animation.js");

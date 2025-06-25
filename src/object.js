@@ -226,7 +226,8 @@ class ModelLoader {
 			voxelList: voxelList,
 			center: mult(0.5, add(maxPoint, minPoint)),
 		};
-		console.log(`Model ${name} loaded with ${voxelList.length} voxels.`);
+		
+		if(DEBUG) console.log(`Model ${name} loaded with ${voxelList.length} voxels.`);
 	}
 
 }
