@@ -1,7 +1,7 @@
 function setupWorld() {
     setupFloorVAO();
-    for (let i = 0; i < FISH_NUMBER; i++)
-        spawnFish();
+    for (let i = 0; i < FISH_GROUP_NUMBER; i++)
+        spawnFishGroup();
 
     for (let i = 0; i < ROCK_NUMBER; i++)
         spawnRock();
@@ -92,7 +92,7 @@ function renderFloor() {
     gl.bindVertexArray(null);
 }
 
-function spawnFish() {
+function spawnFish(position) {
     let randomModel = randomRange(0, 1);
     let randomColor = randomRange(0, 1);
     let model = null;
@@ -118,12 +118,32 @@ function spawnFish() {
         else
             model = gModelLoader.models["pufferfish_yellow"];
 
-    let position = vec3(
-        randomRange(-(MAP_LIMIT-5), (MAP_LIMIT-5)),
-        randomRange(-(MAP_LIMIT-5), (MAP_LIMIT-5)),
-        randomRange(0, (MAP_LIMIT-5))
-    );
+    // let position = vec3(
+    //     randomRange(-(MAP_LIMIT-5), (MAP_LIMIT-5)),
+    //     randomRange(-(MAP_LIMIT-5), (MAP_LIMIT-5)),
+    //     randomRange(0, (MAP_LIMIT-5))
+    // );
     gObjects.push(new Boid(position, vec3(0, 0, 0), vec3(1, 1, 1), gShaders.toon, model));
+}
+
+function spawnFishGroup() {
+    let groupPosition = vec3(
+        randomRange(-(MAP_LIMIT-5), (MAP_LIMIT-5)),
+        randomRange(-(MAP_LIMIT-5), (MAP_LIMIT-5)),
+        randomRange(FISH_GROUP_RADIUS+10, (MAP_LIMIT-5))
+    );
+
+    let groupSize = randomRange(FISH_GROUP_MIN_SIZE, FISH_GROUP_MAX_SIZE);
+
+    for (let i = 0; i < groupSize; i++) {
+        let fishPosition = vec3(
+            randomRange(0, FISH_GROUP_RADIUS),
+            randomRange(0, FISH_GROUP_RADIUS),
+            randomRange(0, FISH_GROUP_RADIUS),
+        );
+        fishPosition = add(fishPosition, groupPosition);
+        spawnFish(fishPosition);
+    }
 }
 
 function spawnRock() {
