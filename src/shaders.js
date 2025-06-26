@@ -13,6 +13,7 @@ class Shader {
         this.uLightPosition = gl.getUniformLocation(this.program, "uLightPosition");
         this.uColor = gl.getUniformLocation(this.program, "uColor");
         this.uOutline = gl.getUniformLocation(this.program, "uOutline");
+        this.uPointSize = gl.getUniformLocation(this.program, "uPointSize");
     }
 }
 
@@ -22,12 +23,14 @@ function setupShaders() {
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
+    gl.enable(gl.VERTEX_PROGRAM_POINT_SIZE);
 
     gShaders.basic = new Shader(BASIC_VERTEX_SHADER, BASIC_FRAGMENT_SHADER);
     gShaders.textured = new Shader(TEXTURED_VERTEX_SHADER, TEXTURED_FRAGMENT_SHADER);
     gShaders.toon = new Shader(BASIC_VERTEX_SHADER, TOON_FRAGMENT_SHADER);
     gShaders.line = new Shader(LINE_VERTEX_SHADER, LINE_FRAGMENT_SHADER);
     gShaders.postProcess = new Shader(POST_PROCESS_VERTEX_SHADER, POST_PROCESS_FRAGMENT_SHADER);
+    gShaders.particle = new Shader(PARTICLE_VERTEX_SHADER, PARTICLE_FRAGMENT_SHADER);
 }
 
 var gFramebuffer

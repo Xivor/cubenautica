@@ -6,7 +6,7 @@ in vec3 vLight;
 in vec3 vNormal;
 out vec4 outputColor;
 
-uniform float uOutline;
+uniform vec4 uOutline;
 uniform vec4 uColorAmbient;
 uniform vec4 uColorDiffusion;
 
@@ -34,7 +34,7 @@ void main() {
     vec4 diffusion = kd * uColorDiffusion;
 
     outputColor = diffusion + uColorAmbient;
-    outputColor *= uOutline;
+    outputColor += uOutline;
     outputColor.a = 1.0;
 }
 `;

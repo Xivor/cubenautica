@@ -43,32 +43,33 @@ class BaseObject {
 		}
 	}
 
-	render() {
-
-		let mTranslation = translate(this.position[0], this.position[1], this.position[2]);
-		let mRotate = this.rotationMatrix || mult(rotateZ(this.rotation[2]), mult(rotateY(this.rotation[1]), rotateX(this.rotation[0])));
+    render() {
+        gl.bindVertexArray(this.vao);
+        let mTranslation = translate(this.position[0], this.position[1], this.position[2]);
+        let mRotate = this.rotationMatrix || mult(rotateZ(this.rotation[2]), mult(rotateY(this.rotation[1]), rotateX(this.rotation[0])));
         let mScale = scale(this.scale[0], this.scale[1], this.scale[2]);
-		let mTRS = mult(mTranslation, mult(mRotate, mScale)); 
+        let mTRS = mult(mTranslation, mult(mRotate, mScale));
 
-		this.voxelList.forEach( voxel => {
+        this.voxelList.forEach( voxel => {
 
-			let modelMatrix = mult(mTRS, voxel.modelMatrix);
+            let modelMatrix = mult(mTRS, voxel.modelMatrix);
 
-			let mInvTrans = inverse(transpose(mult(gCamera.view, modelMatrix)));
+            let mInvTrans = inverse(transpose(mult(gCamera.view, modelMatrix)));
 
-			gl.uniformMatrix4fv(this.shader.uModel, false, flatten(modelMatrix));
-			gl.uniformMatrix4fv(this.shader.uModelViewInverseTranspose, false, flatten(mInvTrans));
-			gl.uniform4fv(this.shader.uColorDiffusion, mult(LIGHT.diffusion, voxel.color));
-			gl.uniform4fv(this.shader.uColorAmbient, mult(LIGHT.ambient, voxel.color));
-    		gl.drawArrays(gl.TRIANGLES, 0, 36);
-		});
-	}
+            gl.uniformMatrix4fv(this.shader.uModel, false, flatten(modelMatrix));
+            gl.uniformMatrix4fv(this.shader.uModelViewInverseTranspose, false, flatten(mInvTrans));
+            gl.uniform4fv(this.shader.uColorDiffusion, mult(LIGHT.diffusion, voxel.color));
+            gl.uniform4fv(this.shader.uColorAmbient, mult(LIGHT.ambient, voxel.color));
+            gl.drawArrays(gl.TRIANGLES, 0, 36);
+        });
+        gl.bindVertexArray(null);
+    }
 
 	setupShader() {
-		this.vao = gl.createVertexArray();
-		gl.bindVertexArray(this.vao);
+        this.vao = gl.createVertexArray();
+        gl.bindVertexArray(this.vao);
 
-		let cubeVertexes = [
+        let cubeVertexes = [
 			// Front face
 			vec3(.5, .5, .5),
 			vec3(-.5, .5, .5),
@@ -124,8 +125,8 @@ class BaseObject {
 			vec3(.5, -.5, .5),
 		];
 
-		let cubeNormals = [];
-		for (let i = 0; i < cubeVertexes.length; i += 6) {
+        let cubeNormals = [];
+        for (let i = 0; i < cubeVertexes.length; i += 6) {
 			let a = cubeVertexes[i];
 			let b = cubeVertexes[i + 1];
 			let c = cubeVertexes[i + 2];
@@ -134,24 +135,75 @@ class BaseObject {
 			cubeNormals.push(normal, normal, normal, normal, normal, normal);
 		}
 
-		let vertexBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, flatten(cubeVertexes), gl.STATIC_DRAW);
+        let vertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(cubeVertexes), gl.STATIC_DRAW);
 
-		let aPosition = gl.getAttribLocation(this.shader.program, "aPosition");
-		gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(aPosition);
+        let aPosition = gl.getAttribLocation(this.shader.program, "aPosition");
+        gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(aPosition);
 
-		let normalsBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, normalsBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, flatten(cubeNormals), gl.STATIC_DRAW);
+        let normalsBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalsBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(cubeNormals), gl.STATIC_DRAW);
 
-		let aNormal = gl.getAttribLocation(this.shader.program, "aNormal");
-		gl.vertexAttribPointer(aNormal, 3, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(aNormal);
+        let aNormal = gl.getAttribLocation(this.shader.program, "aNormal");
+        gl.vertexAttribPointer(aNormal, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(aNormal);
 
-		gl.bindVertexArray(null);
-	}
+        gl.bindVertexArray(null);
+    }
+
+    clearUnseenVoxels() {
+        let voxelsToRemove = [];
+        for (let voxel of this.voxelList) {
+            let surroundingVoxels = {
+                up: false,
+                down: false,
+                left: false,
+                right: false,
+                front: false,
+                back: false,
+            }
+            for (let other of this.voxelList) {
+                if (voxel === other) continue;
+                if ( equal(other.position, add(voxel.position, vec3(1, 0, 0)))) {
+                    surroundingVoxels.right = true;
+                } // which direction?
+                if ( equal(other.position, add(voxel.position, vec3(-1, 0, 0)))) {
+                    surroundingVoxels.left = true;
+                } // right?
+                if ( equal(other.position, add(voxel.position, vec3(0, 1, 0)))) {
+					surroundingVoxels.front = true;
+                } // right?
+				if ( equal(other.position, add(voxel.position, vec3(0, -1, 0)))) {
+					surroundingVoxels.back = true;
+                } // right?
+				if ( equal(other.position, add(voxel.position, vec3(0, 0, 1)))) {
+					surroundingVoxels.up = true;
+                } // right?
+				if ( equal(other.position, add(voxel.position, vec3(0, 0, -1)))) {
+					surroundingVoxels.down = true;
+                } // right?
+			}
+            if (surroundingVoxels.up == true &&
+                surroundingVoxels.down == true &&
+                surroundingVoxels.left == true &&
+                surroundingVoxels.right == true &&
+                surroundingVoxels.front == true &&
+                surroundingVoxels.back == true
+               ) {
+                voxelsToRemove.push(voxel.position);
+            }
+		}
+        const positionsToRemoveSet = new Set(voxelsToRemove.map(pos => JSON.stringify(pos)));
+
+        // Filter the main list by checking if the voxel's stringified position is in the set
+        this.voxelList = this.voxelList.filter(voxel =>
+            !positionsToRemoveSet.has(JSON.stringify(voxel.position))
+        );
+        console.log("voxels that remained: ", this.voxelList.length);
+    }
 }
 
 class ModelLoader {

@@ -118,11 +118,6 @@ function spawnFish(position) {
         else
             model = gModelLoader.models["pufferfish_yellow"];
 
-    // let position = vec3(
-    //     randomRange(-(MAP_LIMIT-5), (MAP_LIMIT-5)),
-    //     randomRange(-(MAP_LIMIT-5), (MAP_LIMIT-5)),
-    //     randomRange(0, (MAP_LIMIT-5))
-    // );
     gObjects.push(new Boid(position, vec3(0, 0, 0), vec3(1, 1, 1), gShaders.toon, model));
 }
 

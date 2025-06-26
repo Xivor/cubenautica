@@ -1,6 +1,7 @@
 var gl;
 var gCanvas;
 
+var gBubbles;
 var gAnimationController;
 var gBoidController;
 var gModelLoader;
@@ -32,6 +33,7 @@ window.onload = function() {
     setupFramebuffer();
     setupLineRendering();
     setupFullScreenQuad();
+    gBubbles = new Bubbles();
     gModelLoader = new ModelLoader();
     gCamera = new Camera();
     gAnimationController = new AnimationController();
@@ -53,7 +55,7 @@ function render() {
     gState.time = (gState.time || 0);
     gState.time += delta;
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, gFramebuffer.fbo);
+    // gl.bindFramebuffer(gl.FRAMEBUFFER, gFramebuffer.fbo);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     gCamera.update(delta);
@@ -62,7 +64,7 @@ function render() {
 
     gAnimationController.update();
     gBoidController.update(delta);
-    
+
     let activeProgram = null;
     for (let object of gObjects) {
         if (!(object instanceof Boid)) {
@@ -89,25 +91,18 @@ function render() {
         }
         if (object.shader === gShaders.toon) {
             // draw back faces as black to create outline
-            gl.uniform1f(object.shader.uOutline, 0.0);
+            gl.uniform4fv(object.shader.uOutline, vec4(-1.0, -1.0, -1.0, 1.0));
             const scale = object.scale;
             object.scale = mult(1.05, scale);
 
-            gl.enable(gl.CULL_FACE);
             gl.cullFace(gl.FRONT);
-            gl.bindVertexArray(object.vao);
             object.render();
-            gl.bindVertexArray(null);
             object.scale = scale;
-
-            gl.uniform1f(object.shader.uOutline, 1.0);
+            gl.uniform4fv(object.shader.uOutline, vec4(0.0, 0.0, 0.0, 0.0));
         }
 
-        gl.disable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
-        gl.bindVertexArray(object.vao);
         object.render();
-        gl.bindVertexArray(null);
     }
 
     if (DEBUG) {
@@ -122,8 +117,8 @@ function render() {
             }
         }
     }
+    // renderPostProcess();
 
-    renderPostProcess();
     if (DEBUG) updateFpsDisplay(delta);
     if(!gState.paused) window.requestAnimationFrame(render);
 }

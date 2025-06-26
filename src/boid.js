@@ -34,7 +34,7 @@ class Boid extends BaseObject {
     this.applyBoundaries();
   }
 
-updateRotation() {
+  updateRotation() {
     if (length(this.velocity) > 0.1) {
       const v = normalize(this.velocity);
       const horizontalSpeed = Math.sqrt(v[0]*v[0] + v[1]*v[1]);
