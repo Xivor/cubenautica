@@ -29,6 +29,12 @@ function onMouseMove(event) {
 }
 
 function lockPointer() {
+    const backgroundMusic = document.getElementById('background-music');
+    if (backgroundMusic && backgroundMusic.paused) {
+        backgroundMusic.play().catch(error => {
+            console.error("Audio playback failed on interaction:", error);
+        });
+    }
     if (!gState.pointerLocked) {
         gCanvas.requestPointerLock = gCanvas.requestPointerLock || gCanvas.mozRequestPointerLock;
         gCanvas.requestPointerLock();
