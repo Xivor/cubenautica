@@ -1,4 +1,4 @@
-class Boid extends Object {
+class Boid extends BaseObject {
   constructor(position, rotation, scale, shader, model) {
     super(position, rotation, scale, shader, model);
     this.velocity = vec3(
