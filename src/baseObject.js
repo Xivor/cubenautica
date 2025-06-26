@@ -1,4 +1,4 @@
-class Object {
+class BaseObject {
 	constructor(position, rotation, scale, shader, model, texture = null) {
 		this.position = position;
 		this.rotation = rotation;

@@ -139,7 +139,7 @@ function spawnRock() {
         (randomModel < 0.5) ? randomRange(0, 2) : // Small rock
                               randomRange(0, 5)   // Big rock
     );
-    gObjects.push(new Object(position, vec3(0, 0, 0), vec3(1, 1, 1), gShaders.textured, model));
+    gObjects.push(new BaseObject(position, vec3(0, 0, 0), vec3(1, 1, 1), gShaders.textured, model));
 }
 
 function spawnKelp() {
@@ -148,5 +148,5 @@ function spawnKelp() {
         randomRange(-(MAP_LIMIT*3-20), (MAP_LIMIT*3-20)),
         randomRange(0, 5)
     );
-    gObjects.push(new Object(position, vec3(0, 0, 0), vec3(1, 1, 1), gShaders.textured, gModelLoader.models["small_kelp"]));
+    gObjects.push(new BaseObject(position, vec3(0, 0, 0), vec3(1, 1, 1), gShaders.textured, gModelLoader.models["small_kelp"]));
 }
