@@ -1,7 +1,7 @@
 class Bubbles {
   constructor() {
     this.bubbles = [];
-    this.maxBubbles = 50;
+    this.maxBubbles = 100;
     this.posBuffer = gl.createBuffer();
     this.vao = gl.createVertexArray();
     this.setupShaders();
@@ -67,7 +67,7 @@ class Bubbles {
     gl.uniformMatrix4fv(this.shader.uPerspective, false, flatten(gCamera.perspective));
     gl.uniform4fv(this.shader.uColor, [0.5, 0.5, 0.8, 0.2]);
 
-    const baseSize = 10.0;
+    const baseSize = 5.0;
     gl.uniform1f(this.shader.uPointSize, baseSize);
 
     gl.drawArrays(gl.POINTS, 0, this.bubbles.length);

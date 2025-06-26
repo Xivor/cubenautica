@@ -64,6 +64,8 @@ function render() {
 
     gAnimationController.update();
     gBoidController.update(delta);
+    gBubbles.update(delta);
+    gBubbles.render();
 
     let activeProgram = null;
     for (let object of gObjects) {
